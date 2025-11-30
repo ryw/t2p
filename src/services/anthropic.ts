@@ -5,21 +5,29 @@ import type { LLMService } from './llm-service.js';
 export class AnthropicService implements LLMService {
   private client: Anthropic;
   private config: T2pConfig;
+  private apiKey: string;
 
   constructor(config: T2pConfig) {
     this.config = config;
 
     // Get API key from env or config
-    const apiKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey;
+    this.apiKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey || '';
 
-    if (!apiKey) {
+    if (!this.apiKey) {
       throw new Error(
         'Anthropic API key not found. Set ANTHROPIC_API_KEY environment variable or add to config.'
       );
     }
 
+    // Validate API key format
+    if (!this.apiKey.startsWith('sk-ant-')) {
+      throw new Error(
+        `Invalid Anthropic API key format. Key should start with 'sk-ant-'. Got: ${this.apiKey.substring(0, 10)}...`
+      );
+    }
+
     this.client = new Anthropic({
-      apiKey,
+      apiKey: this.apiKey,
     });
   }
 
@@ -33,6 +41,8 @@ export class AnthropicService implements LLMService {
       });
       return true;
     } catch (error) {
+      // Store the error for better reporting
+      (this as any).lastError = error;
       return false;
     }
   }
@@ -40,9 +50,28 @@ export class AnthropicService implements LLMService {
   async ensureAvailable(): Promise<void> {
     const available = await this.isAvailable();
     if (!available) {
-      throw new Error(
-        'Anthropic API is not available. Check your API key and network connection.'
-      );
+      const error = (this as any).lastError as Error;
+      let errorMsg = 'Anthropic API is not available.\n';
+
+      if (error) {
+        const errorStr = error.toString();
+
+        if (errorStr.includes('401') || errorStr.includes('authentication')) {
+          errorMsg += '✗ Authentication failed: Invalid API key\n';
+          errorMsg += `  - Check your API key in .env file or environment\n`;
+          errorMsg += `  - Current key starts with: ${this.apiKey.substring(0, 15)}...\n`;
+        } else if (errorStr.includes('model')) {
+          errorMsg += `✗ Model not found: ${this.getModelName()}\n`;
+          errorMsg += '  - Check your model name in .t2prc.json\n';
+        } else if (errorStr.includes('network') || errorStr.includes('ENOTFOUND')) {
+          errorMsg += '✗ Network error: Cannot reach Anthropic API\n';
+          errorMsg += '  - Check your internet connection\n';
+        } else {
+          errorMsg += `✗ Error: ${error.message}\n`;
+        }
+      }
+
+      throw new Error(errorMsg);
     }
   }
 
