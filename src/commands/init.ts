@@ -74,7 +74,8 @@ export async function initCommand(): Promise<void> {
     logger.info('Next steps:');
     logger.info('1. Configure your LLM provider in .t2prc.json');
     logger.info('   - Default is Ollama (local). To use Anthropic (Claude):');
-    logger.info('     Set "llm.provider" to "anthropic" and export ANTHROPIC_API_KEY');
+    logger.info('     a. Set "llm.provider" to "anthropic" in .t2prc.json');
+    logger.info('     b. Add ANTHROPIC_API_KEY to .env file (or export as env var)');
     logger.info('2. Edit prompts/style.md to define your posting style');
     logger.info('3. Edit prompts/work.md to customize post generation');
     logger.info('4. (Optional) Edit strategies.json to customize content strategies');

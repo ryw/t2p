@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+// Load environment variables from .env file
+import { config as dotenvConfig } from 'dotenv';
+dotenvConfig();
+
 import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
