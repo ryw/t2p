@@ -72,12 +72,15 @@ export async function initCommand(): Promise<void> {
     logger.info('t2p initialized successfully!');
     logger.blank();
     logger.info('Next steps:');
-    logger.info('1. Edit prompts/style.md to define your posting style');
-    logger.info('2. Edit prompts/work.md to customize post generation');
-    logger.info('3. (Optional) Edit strategies.json to customize content strategies');
-    logger.info('4. (Optional) Edit prompts/system.md, prompts/analysis.md, prompts/content-analysis.md, and prompts/banger-eval.md for advanced customization');
-    logger.info('5. Add transcript files to input/');
-    logger.info('6. Run: t2p work');
+    logger.info('1. Configure your LLM provider in .t2prc.json');
+    logger.info('   - Default is Ollama (local). To use Anthropic (Claude):');
+    logger.info('     Set "llm.provider" to "anthropic" and export ANTHROPIC_API_KEY');
+    logger.info('2. Edit prompts/style.md to define your posting style');
+    logger.info('3. Edit prompts/work.md to customize post generation');
+    logger.info('4. (Optional) Edit strategies.json to customize content strategies');
+    logger.info('5. (Optional) Edit prompts/system.md, prompts/analysis.md, prompts/content-analysis.md, and prompts/banger-eval.md for advanced customization');
+    logger.info('6. Add transcript files to input/');
+    logger.info('7. Run: t2p work');
   } catch (error) {
     logger.error(`Initialization failed: ${(error as Error).message}`);
     process.exit(1);

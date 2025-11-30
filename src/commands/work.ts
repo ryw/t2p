@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'fs';
 import { join, relative } from 'path';
 import { FileSystemService } from '../services/file-system.js';
-import { OllamaService } from '../services/ollama.js';
+import { createLLMService } from '../services/llm-factory.js';
 import { ContentAnalyzer } from '../services/content-analyzer.js';
 import { StrategySelector } from '../services/strategy-selector.js';
 import { logger } from '../utils/logger.js';
@@ -196,15 +196,19 @@ export async function workCommand(options: WorkOptions): Promise<void> {
 
   // Override model if specified
   if (options.model) {
-    config.ollama.model = options.model;
+    if (config.llm.provider === 'ollama' && config.ollama) {
+      config.ollama.model = options.model;
+    } else if (config.llm.provider === 'anthropic' && config.anthropic) {
+      config.anthropic.model = options.model;
+    }
   }
 
-  // Initialize Ollama service
-  const ollama = new OllamaService(config);
+  // Initialize LLM service
+  const llm = createLLMService(config);
 
-  // Check Ollama availability
-  await ollama.ensureAvailable();
-  logger.success(`Connected to Ollama (model: ${ollama.getModelName()})`);
+  // Check LLM availability
+  await llm.ensureAvailable();
+  logger.success(`Connected to ${config.llm.provider} (model: ${llm.getModelName()})`);
 
   // Step 2: Load context
   logger.section('[2/3] Loading context...');
@@ -231,7 +235,7 @@ export async function workCommand(options: WorkOptions): Promise<void> {
   logger.success(`Loaded ${userStrategies.length} content strategies`);
 
   // Initialize strategy services
-  const contentAnalyzer = analysisTemplate ? new ContentAnalyzer(ollama, analysisTemplate) : null;
+  const contentAnalyzer = analysisTemplate ? new ContentAnalyzer(llm, analysisTemplate) : null;
   const strategySelector = new StrategySelector(
     userStrategies,
     config.generation.strategies?.diversityWeight || 0.7
@@ -352,7 +356,7 @@ export async function workCommand(options: WorkOptions): Promise<void> {
               transcript
             );
 
-            const response = await ollama.generate(strategyPrompt);
+            const response = await llm.generate(strategyPrompt);
 
             // Parse single post from response
             const posts = parsePostsFromResponse(response);
@@ -363,8 +367,8 @@ export async function workCommand(options: WorkOptions): Promise<void> {
               const post = fs.createPost(
                 relativePath,
                 postData.content,
-                ollama.getModelName(),
-                ollama.getTemperature()
+                llm.getModelName(),
+                llm.getTemperature()
               );
 
               // Add strategy metadata
@@ -377,7 +381,7 @@ export async function workCommand(options: WorkOptions): Promise<void> {
               // Evaluate banger potential
               try {
                 const evalPrompt = buildBangerEvalPrompt(bangerEvalTemplate, postData.content);
-                const evalResponse = await ollama.generate(evalPrompt);
+                const evalResponse = await llm.generate(evalPrompt);
                 const evaluation = parseBangerEval(evalResponse);
 
                 if (evaluation) {
@@ -407,7 +411,7 @@ export async function workCommand(options: WorkOptions): Promise<void> {
           logger.info(`  Prompt length: ${prompt.length} characters`);
         }
 
-        const response = await ollama.generate(prompt);
+        const response = await llm.generate(prompt);
 
         if (options.verbose) {
           logger.info(`  Response length: ${response.length} characters`);
@@ -426,14 +430,14 @@ export async function workCommand(options: WorkOptions): Promise<void> {
           const post = fs.createPost(
             relativePath,
             postData.content,
-            ollama.getModelName(),
-            ollama.getTemperature()
+            llm.getModelName(),
+            llm.getTemperature()
           );
 
           // Evaluate banger potential
           try {
             const evalPrompt = buildBangerEvalPrompt(bangerEvalTemplate, postData.content);
-            const evalResponse = await ollama.generate(evalPrompt);
+            const evalResponse = await llm.generate(evalPrompt);
             const evaluation = parseBangerEval(evalResponse);
 
             if (evaluation) {

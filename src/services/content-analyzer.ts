@@ -1,9 +1,9 @@
 import type { TranscriptAnalysis } from '../types/strategy.js';
-import type { OllamaService } from './ollama.js';
+import type { LLMService } from './llm-service.js';
 
 export class ContentAnalyzer {
   constructor(
-    private ollama: OllamaService,
+    private llm: LLMService,
     private analysisTemplate: string
   ) {}
 
@@ -19,8 +19,8 @@ ${transcript}
 
 Provide your analysis as JSON:`;
 
-      // Call Ollama
-      const response = await this.ollama.generate(prompt);
+      // Call LLM
+      const response = await this.llm.generate(prompt);
 
       // Parse response
       const analysis = this.parseAnalysis(response);
