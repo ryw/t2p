@@ -20,15 +20,43 @@ export function validateConfig(config: unknown): boolean {
 
   const c = config as Record<string, unknown>;
 
-  if (!c.ollama || typeof c.ollama !== 'object') {
-    return false;
+  // Check for llm.provider field (new format)
+  if (c.llm && typeof c.llm === 'object') {
+    const llm = c.llm as Record<string, unknown>;
+
+    if (typeof llm.provider !== 'string' || !['ollama', 'anthropic'].includes(llm.provider as string)) {
+      return false;
+    }
+
+    // Validate provider-specific config
+    if (llm.provider === 'ollama') {
+      if (!c.ollama || typeof c.ollama !== 'object') {
+        return false;
+      }
+      const ollama = c.ollama as Record<string, unknown>;
+      if (typeof ollama.host !== 'string' || typeof ollama.model !== 'string') {
+        return false;
+      }
+    } else if (llm.provider === 'anthropic') {
+      if (!c.anthropic || typeof c.anthropic !== 'object') {
+        return false;
+      }
+      const anthropic = c.anthropic as Record<string, unknown>;
+      if (typeof anthropic.model !== 'string') {
+        return false;
+      }
+    }
+
+    return true;
   }
 
-  const ollama = c.ollama as Record<string, unknown>;
-
-  if (typeof ollama.host !== 'string' || typeof ollama.model !== 'string') {
-    return false;
+  // Backward compatibility: old format with just ollama
+  if (c.ollama && typeof c.ollama === 'object') {
+    const ollama = c.ollama as Record<string, unknown>;
+    if (typeof ollama.host === 'string' && typeof ollama.model === 'string') {
+      return true;
+    }
   }
 
-  return true;
+  return false;
 }

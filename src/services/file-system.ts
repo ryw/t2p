@@ -30,7 +30,19 @@ export class FileSystemService {
         throw new ConfigError('Invalid configuration format');
       }
 
-      return { ...DEFAULT_CONFIG, ...config };
+      // Migrate old config format to new format
+      let migratedConfig = { ...config };
+      if (!config.llm && config.ollama) {
+        // Old format detected - migrate to new format
+        migratedConfig = {
+          llm: {
+            provider: 'ollama',
+          },
+          ...config,
+        };
+      }
+
+      return { ...DEFAULT_CONFIG, ...migratedConfig };
     } catch (error) {
       if (error instanceof NotInitializedError || error instanceof ConfigError) {
         throw error;
