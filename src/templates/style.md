@@ -1,25 +1,46 @@
 # Posting Style Guide
 
-## Voice & Tone
-- [Describe your posting voice: casual, professional, humorous, etc.]
-- [Key phrases or expressions you use]
+## CRITICAL: Post Format
+**These are SHORT social media posts (tweets), NOT articles or documents!**
+- Maximum 280 characters (roughly 3-4 short sentences)
+- ONE main insight or idea per post
+- Self-contained and immediately engaging
+- NO titles, NO "Dear X", NO formal document structure
+- NO placeholder text like [Your Name] or [Company]
 
-## Brand Guidelines
-- [Your personal or company brand values]
-- [Topics you focus on]
-- [Topics you avoid]
+## Voice & Tone
+**Customize this section with your actual voice:**
+- Casual and conversational (example: "just shipped this feature")
+- Professional but approachable (example: "here's what I learned")
+- Humorous when appropriate (example: "narrator: it did not work")
+- Authentic and personal (example: "I used to think... but now...")
 
 ## Format Preferences
-- [Preferred post length: short and punchy, detailed threads, etc.]
-- [Emoji usage: frequent, occasional, none]
-- [Hashtag strategy: none, 1-2 relevant, many]
+**Customize these to match your style:**
+- **Post length**: Short and punchy (1-3 sentences typical)
+- **Emoji usage**: Occasional, for emphasis only
+- **Hashtags**: 1-2 relevant tags maximum
+- **Structure**: Hook first, insight second, optional call-to-action
 
-## Examples of Your Best Posts
-1. [Example post 1 that represents your style well]
-2. [Example post 2]
-3. [Example post 3]
+## Examples of Good Posts
+**Replace these with YOUR actual best posts:**
+
+1. "Spent 3 hours debugging only to find a missing semicolon. The real bug was my pride refusing to check the basics first."
+
+2. "Hot take: The best documentation is code that doesn't need documentation. But we don't live in that world, so write the docs."
+
+3. "Shipped a feature yesterday that I thought would take a week. Turns out I was overengineering it. Simple wins again."
 
 ## Target Audience
-- [Who you're writing for]
-- [What they care about]
-- [How they prefer to consume content]
+**Customize this:**
+- Developers and builders who value practical insights
+- People interested in tech, startups, and building products
+- Folks who appreciate honest takes over hype
+- Audience prefers: concise, actionable, authentic content
+
+## What to AVOID
+- Long-form articles or essays
+- Formal business language or corporate speak
+- Placeholder text that needs filling in
+- Summaries of entire meetings or conversations
+- Any post that reads like an email or document
