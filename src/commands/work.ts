@@ -109,6 +109,9 @@ export async function workCommand(options: WorkOptions): Promise<void> {
   const workInstructions = fs.loadPrompt('work.md');
   logger.success('Loaded work instructions');
 
+  const bangerEvalTemplate = fs.loadPrompt('banger-eval.md');
+  logger.success('Loaded banger evaluation prompt');
+
   const inputFiles = findInputFiles(join(cwd, 'input'));
   if (inputFiles.length === 0) {
     logger.error('No input files found in input/ directory');
@@ -172,7 +175,7 @@ export async function workCommand(options: WorkOptions): Promise<void> {
 
         // Evaluate banger potential
         try {
-          const evalPrompt = buildBangerEvalPrompt(postData.content);
+          const evalPrompt = buildBangerEvalPrompt(bangerEvalTemplate, postData.content);
           const evalResponse = await ollama.generate(evalPrompt);
           const evaluation = parseBangerEval(evalResponse);
 

@@ -1,19 +1,10 @@
-import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
 import type { BangerEvaluation } from '../types/post.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Load banger evaluation template
-const BANGER_EVAL_TEMPLATE = readFileSync(join(__dirname, '../templates/banger-eval.md'), 'utf-8');
 
 /**
  * Build prompt for evaluating a post's banger potential
  */
-export function buildBangerEvalPrompt(postContent: string): string {
-  return `${BANGER_EVAL_TEMPLATE}
+export function buildBangerEvalPrompt(bangerEvalTemplate: string, postContent: string): string {
+  return `${bangerEvalTemplate}
 
 POST TO EVALUATE:
 """

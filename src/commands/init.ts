@@ -14,6 +14,7 @@ const STYLE_TEMPLATE = readFileSync(join(__dirname, '../templates/style.md'), 'u
 const WORK_TEMPLATE = readFileSync(join(__dirname, '../templates/work.md'), 'utf-8');
 const SYSTEM_TEMPLATE = readFileSync(join(__dirname, '../templates/system.md'), 'utf-8');
 const ANALYSIS_TEMPLATE = readFileSync(join(__dirname, '../templates/analysis.md'), 'utf-8');
+const BANGER_EVAL_TEMPLATE = readFileSync(join(__dirname, '../templates/banger-eval.md'), 'utf-8');
 
 export async function initCommand(): Promise<void> {
   const cwd = process.cwd();
@@ -46,6 +47,9 @@ export async function initCommand(): Promise<void> {
     fs.writeFile(join(cwd, 'prompts', 'analysis.md'), ANALYSIS_TEMPLATE);
     logger.success('Created file: prompts/analysis.md');
 
+    fs.writeFile(join(cwd, 'prompts', 'banger-eval.md'), BANGER_EVAL_TEMPLATE);
+    logger.success('Created file: prompts/banger-eval.md');
+
     // Create empty posts.jsonl
     fs.writeFile(join(cwd, 'posts.jsonl'), '');
     logger.success('Created file: posts.jsonl');
@@ -61,7 +65,7 @@ export async function initCommand(): Promise<void> {
     logger.info('Next steps:');
     logger.info('1. Edit prompts/style.md to define your posting style');
     logger.info('2. Edit prompts/work.md to customize post generation');
-    logger.info('3. (Optional) Edit prompts/system.md and prompts/analysis.md for advanced customization');
+    logger.info('3. (Optional) Edit prompts/system.md, prompts/analysis.md, and prompts/banger-eval.md for advanced customization');
     logger.info('4. Add transcript files to input/');
     logger.info('5. Run: t2p work');
   } catch (error) {

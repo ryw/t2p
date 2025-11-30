@@ -72,6 +72,7 @@ Initialize a new t2p project in the current directory. Creates:
 | `prompts/work.md` | Instructions for how posts should be generated |
 | `prompts/system.md` | System prompt for post generation (advanced) |
 | `prompts/analysis.md` | Style analysis prompt for X posts (advanced) |
+| `prompts/banger-eval.md` | Viral potential scoring criteria (advanced) |
 | `.t2prc.json` | Project configuration file |
 
 ### `t2p work`
@@ -206,7 +207,8 @@ your-project/
 │   ├── style.md        # Brand voice & tone
 │   ├── work.md         # Generation instructions
 │   ├── system.md       # System prompt (advanced)
-│   └── analysis.md     # Style analysis prompt (advanced)
+│   ├── analysis.md     # Style analysis prompt (advanced)
+│   └── banger-eval.md  # Viral potential scoring (advanced)
 ├── posts.jsonl         # Generated posts (created after first run)
 └── .t2prc.json         # Configuration
 ```
@@ -361,7 +363,7 @@ All prompts used by t2p are stored as editable files in the `prompts/` directory
 **Advanced prompts** (optional, for power users):
 - `prompts/system.md` - System prompt wrapper for post generation
 - `prompts/analysis.md` - Prompt used to analyze your X posts and generate style guides
-- `src/templates/banger-eval.md` - Scoring criteria for evaluating viral potential (source code only)
+- `prompts/banger-eval.md` - Scoring criteria for evaluating viral potential
 
 ### Why User-Editable Prompts?
 
@@ -381,6 +383,12 @@ All prompts used by t2p are stored as editable files in the `prompts/` directory
 - Posts need a different structure
 - You want more/fewer posts per transcript
 - You want to change quality criteria
+
+**Edit `banger-eval.md`** (advanced) when:
+- You want to adjust viral potential scoring criteria
+- You need different scoring weights for the 7 factors
+- You want to add or remove evaluation criteria
+- You're optimizing for a specific platform beyond X/Twitter
 
 **Edit `system.md` or `analysis.md`** (advanced) when:
 - You want to change the core prompting strategy
