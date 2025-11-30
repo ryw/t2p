@@ -2,7 +2,7 @@
   {
     "id": "bold-observation",
     "name": "Bold, Provoking Observation",
-    "prompt": "Make a bold, provoking observation. It might be something that you genuinely think, but taken to its extreme. Bold statements capture people's interest and spark conversations.",
+    "prompt": "Extract a bold, provoking observation from the transcript. Find something discussed that you genuinely think, but take it to its extreme. Use specific content from the transcript - quotes, ideas, or insights. Bold statements capture people's interest and spark conversations.",
     "category": "provocative",
     "threadFriendly": false,
     "applicability": {
@@ -12,7 +12,7 @@
   {
     "id": "what-everyone-believes",
     "name": "Challenge Common Beliefs",
-    "prompt": "What is something everyone believes to be true? Share your take on why it's not, make it spicy.",
+    "prompt": "From the transcript, identify a commonly held belief that you challenge. Use the specific topic, insight, or perspective discussed in the transcript to craft your contrarian take. Make it spicy and reference actual points from the conversation.",
     "category": "provocative",
     "threadFriendly": true,
     "applicability": {
@@ -22,7 +22,7 @@
   {
     "id": "nobody-talks-about",
     "name": "What Nobody Talks About",
-    "prompt": "What is something nobody talks about? Think about takeaways you usually don't read around.",
+    "prompt": "Find an under-discussed insight from the transcript - something mentioned that most people overlook. Use the actual conversation to highlight a takeaway that readers don't usually see discussed. Be specific about what was said in the transcript.",
     "category": "provocative",
     "threadFriendly": true,
     "applicability": {
@@ -32,7 +32,7 @@
   {
     "id": "controversial-idea",
     "name": "Share a Controversial Idea",
-    "prompt": "Share a controversial idea you believe. If you truly believe it, don't fear the heat in your replies.",
+    "prompt": "Extract a controversial idea from the transcript that you genuinely believe. Use specific points discussed in the conversation - quotes, arguments, or perspectives. If you truly believe it based on what was discussed, don't fear the heat in your replies.",
     "category": "provocative",
     "threadFriendly": true,
     "applicability": {
@@ -42,7 +42,7 @@
   {
     "id": "repurpose-reply",
     "name": "Repurpose a Reply",
-    "prompt": "Repurpose a reply to a question you're often being asked. For example, a friend's request or a frequent question about your business/product.",
+    "prompt": "Take an insight from the transcript and frame it as a reply to a question you're often asked. Use specific content discussed - insights, explanations, or advice - and present it as if answering a frequent question about your business/product/topic.",
     "category": "engagement",
     "threadFriendly": false,
     "applicability": {
@@ -52,7 +52,7 @@
   {
     "id": "weekend-program",
     "name": "Weekend Plans Question",
-    "prompt": "What's your program for the weekend? Involve your audience by asking a question for better results.",
+    "prompt": "Based on activities, projects, or topics mentioned in the transcript, share what you're planning for the weekend. Use actual content from the conversation (a project, hobby, challenge, or idea discussed) and ask your audience about their weekend plans on the same topic.",
     "category": "engagement",
     "threadFriendly": false,
     "applicability": {
@@ -62,7 +62,7 @@
   {
     "id": "plan-for-today",
     "name": "Today's Plan",
-    "prompt": "What's your plan for today? Optionally, ask your followers what's theirs.",
+    "prompt": "From the transcript, identify a task, project, or goal that was discussed. Share your plan for today based on this specific content - what you're working on, implementing, or exploring from the conversation. Ask your followers what they're working on today.",
     "category": "engagement",
     "threadFriendly": false,
     "applicability": {
@@ -72,7 +72,7 @@
   {
     "id": "question-about-topic",
     "name": "Ask About a Topic",
-    "prompt": "Ask a question about a topic or niche. Let your followers give you their insights, or start a conversation.",
+    "prompt": "Use the specific topic, tool, technique, or subject discussed in the transcript to formulate a question. Reference the actual content from the conversation and ask your followers for their insights or experiences with this specific topic.",
     "category": "engagement",
     "threadFriendly": false,
     "applicability": {
@@ -82,7 +82,7 @@
   {
     "id": "ask-for-advice",
     "name": "Ask for Advice",
-    "prompt": "Ask for advice on something you're unsure about. Be open. This is a good way to start a conversation.",
+    "prompt": "Find a challenge, decision, or uncertainty discussed in the transcript. Frame it as a specific request for advice using the actual context from the conversation. Be open about the specific situation mentioned. This is a good way to start a conversation.",
     "category": "engagement",
     "threadFriendly": false,
     "applicability": {
@@ -92,7 +92,7 @@
   {
     "id": "ask-for-help",
     "name": "Ask for Help",
-    "prompt": "Ask for help with an issue that you're facing. Got stuck with a tool? Are you struggling with a problem? Let your followers help you.",
+    "prompt": "Identify a problem, challenge, or technical issue mentioned in the transcript. Use the specific tool, obstacle, or struggle discussed and ask your followers for help with this particular issue. Reference the actual context from the conversation.",
     "category": "engagement",
     "threadFriendly": false,
     "applicability": {
@@ -102,7 +102,7 @@
   {
     "id": "audience-problem",
     "name": "Ask About Their Problems",
-    "prompt": "Ask your audience what's their problem about a specific topic. This is a great way to spark conversations, and learn from your followers.",
+    "prompt": "Use a specific topic, domain, or challenge discussed in the transcript to ask your audience about their problems in that area. Reference the actual subject matter from the conversation and invite your followers to share their experiences. This is a great way to spark conversations and learn from your followers.",
     "category": "engagement",
     "threadFriendly": false,
     "applicability": {
@@ -112,7 +112,7 @@
   {
     "id": "offer-help",
     "name": "Offer Your Help",
-    "prompt": "Offer your help to other people. If you're good at something and have time to help, this is always a great way to engage with your followers.",
+    "prompt": "Based on expertise, skills, or knowledge demonstrated in the transcript, offer specific help related to the topics discussed. Use the actual content from the conversation to frame what you can help with. If you're good at something mentioned and have time to help, this is always a great way to engage with your followers.",
     "category": "engagement",
     "threadFriendly": false,
     "applicability": {
@@ -122,7 +122,7 @@
   {
     "id": "good-morning",
     "name": "Say Good Morning",
-    "prompt": "Say good morning to a group of people. Target a topic or a group of people that you like.",
+    "prompt": "Say good morning to a specific community, audience, or interest group related to topics in the transcript. Use the actual subject matter discussed (e.g., 'builders', 'developers', 'founders') to target your greeting authentically.",
     "category": "engagement",
     "threadFriendly": false,
     "applicability": {
@@ -132,7 +132,7 @@
   {
     "id": "introduce-yourself",
     "name": "Introduce Yourself",
-    "prompt": "Introduce yourself to your new Twitter followers. Your recent followers might not really know you yet.",
+    "prompt": "Use details, projects, expertise, or interests from the transcript to craft an authentic introduction. Reference specific work, passions, or background mentioned in the conversation to introduce yourself to new Twitter followers who might not know you yet.",
     "category": "engagement",
     "threadFriendly": false,
     "applicability": {
@@ -142,7 +142,7 @@
   {
     "id": "monday-feeling",
     "name": "Monday Motivation",
-    "prompt": "It's Monday. How do you feel about it? Share your plan or a motivational thought to start the week.",
+    "prompt": "Based on goals, projects, or insights from the transcript, share your Monday plan or motivational thought. Use specific content from the conversation - what you're working on this week, lessons learned, or momentum you're building - to start the week.",
     "category": "engagement",
     "threadFriendly": false,
     "applicability": {
@@ -152,7 +152,7 @@
   {
     "id": "your-story",
     "name": "Share Your Story",
-    "prompt": "What's your story? Share why you changed things. Make it aspirational, show the change.",
+    "prompt": "Extract a personal transformation or journey from the transcript. Use the specific story, change, or evolution discussed in the conversation. Make it aspirational based on the actual narrative shared, showing the before/after or the pivotal moment mentioned.",
     "category": "personal",
     "threadFriendly": true,
     "applicability": {
@@ -162,7 +162,7 @@
   {
     "id": "worst-experience",
     "name": "Worst Experience",
-    "prompt": "Share your worst experience with your followers. Tell the story, twist it with a learning, and ask your followers about theirs.",
+    "prompt": "Find a difficult experience, failure, or challenging moment mentioned in the transcript. Use the specific story and details discussed to share this worst experience authentically. Extract the learning from the conversation and ask your followers about their similar experiences.",
     "category": "personal",
     "threadFriendly": true,
     "applicability": {
@@ -172,7 +172,7 @@
   {
     "id": "best-decision",
     "name": "Best Life Decision",
-    "prompt": "What is the best decision you made in your life? Share the struggles, the achievement, the learnings.",
+    "prompt": "Extract the best decision or pivotal choice mentioned in the transcript. Use the specific struggles, achievements, and learnings discussed in the conversation. Make it a compelling narrative based on what was actually shared.",
     "category": "personal",
     "threadFriendly": true,
     "applicability": {
@@ -182,7 +182,7 @@
   {
     "id": "recent-mistake",
     "name": "Recent Mistake",
-    "prompt": "What mistake did you make recently? What did you learn? Tell people how they can avoid it.",
+    "prompt": "Find a mistake, error, or misstep mentioned in the transcript. Use the specific situation discussed, what was learned from it, and frame it as advice to help people avoid the same mistake. Reference actual details from the conversation.",
     "category": "personal",
     "threadFriendly": true,
     "applicability": {
@@ -192,7 +192,7 @@
   {
     "id": "small-win",
     "name": "Recent Small Win",
-    "prompt": "Share a recent small win that makes you proud. Why does it matter? Attach a screenshot for extra engagement.",
+    "prompt": "Extract a recent accomplishment, milestone, or small victory mentioned in the transcript. Use the specific achievement discussed and explain why it matters based on the conversation context. Reference actual progress or results shared.",
     "category": "personal",
     "threadFriendly": false,
     "applicability": {
@@ -202,7 +202,7 @@
   {
     "id": "trap-fell-into",
     "name": "Trap You Fell Into",
-    "prompt": "What trap did you fall into during the last few weeks? What's the lesson in it?",
+    "prompt": "Identify a pitfall, trap, or common mistake mentioned in the transcript. Use the specific situation discussed - what trap was fallen into and what lesson was learned. Frame it using actual details from the conversation.",
     "category": "personal",
     "threadFriendly": true,
     "applicability": {
@@ -212,7 +212,7 @@
   {
     "id": "used-to-think",
     "name": "What You Used to Think",
-    "prompt": "What were you used to do or think that now you don't? There are lessons ready to share behind mistakes or beliefs.",
+    "prompt": "Extract a belief change or evolution in thinking from the transcript. Use specific examples of what you used to do or think versus what you believe now, based on the conversation. Share the lessons or realizations discussed that led to this change.",
     "category": "personal",
     "threadFriendly": true,
     "applicability": {
@@ -222,7 +222,7 @@
   {
     "id": "big-failure",
     "name": "Share a Big Failure",
-    "prompt": "Share a big failure of yours. Bonus points if you make it funny and entertaining.",
+    "prompt": "Find a significant failure or setback mentioned in the transcript. Use the specific story, circumstances, and outcomes discussed. If the tone allows, make it entertaining while staying true to what was actually shared in the conversation.",
     "category": "personal",
     "threadFriendly": true,
     "applicability": {
@@ -232,7 +232,7 @@
   {
     "id": "hobby-curious",
     "name": "Share Your Hobby",
-    "prompt": "Do you have a hobby people should be curious about? It's not all about work. People are always interested to learn more about the things that you enjoy.",
+    "prompt": "Identify hobbies, interests, or non-work activities mentioned in the transcript. Use the specific hobby or passion discussed to share what you enjoy beyond work. Reference actual activities or interests from the conversation.",
     "category": "personal",
     "threadFriendly": false,
     "applicability": {
@@ -242,7 +242,7 @@
   {
     "id": "passionate-about",
     "name": "Share Your Passion",
-    "prompt": "Share something you are passionate about. It's a good conversation opener and creates connections.",
+    "prompt": "Extract a topic, project, or cause you're passionate about from the transcript. Use the specific enthusiasm, interest, or dedication discussed in the conversation. This creates authentic connections based on what was actually shared.",
     "category": "personal",
     "threadFriendly": false,
     "applicability": {
@@ -252,7 +252,7 @@
   {
     "id": "photo-of-love",
     "name": "Photo of Something You Love",
-    "prompt": "Show a photo of something/someone you love. It might be your family trip, your dog, or even a pizza 🍕.",
+    "prompt": "Find something meaningful mentioned in the transcript - a place, person, experience, hobby, or even a favorite food. Frame a post about showing a photo of this specific thing discussed in the conversation, whether it's a project you're proud of, a meaningful moment, or something you enjoy.",
     "category": "personal",
     "threadFriendly": false,
     "applicability": {
@@ -262,7 +262,7 @@
   {
     "id": "how-to-guide",
     "name": "Share a How-To Guide",
-    "prompt": "Share a how-to guide about something you care about. How can you help your audience reach the goal?",
+    "prompt": "Extract actionable knowledge from the transcript and create a step-by-step how-to guide. Use specific processes, methods, or techniques discussed in the conversation. Help your audience reach a goal based on what was actually shared.",
     "category": "educational",
     "threadFriendly": true,
     "applicability": {
@@ -272,7 +272,7 @@
   {
     "id": "time-saving-process",
     "name": "Time-Saving Process",
-    "prompt": "What process do you have that saves you time? Share a process that other people can apply too.",
+    "prompt": "Identify a time-saving process, workflow, or efficiency mentioned in the transcript. Use the specific steps, tools, or approaches discussed to share how others can apply the same process. Reference actual methods from the conversation.",
     "category": "educational",
     "threadFriendly": true,
     "applicability": {
@@ -282,7 +282,7 @@
   {
     "id": "habit-improved-life",
     "name": "Life-Improving Habit",
-    "prompt": "What's a habit that improved your life? What do you do that gives you benefits?",
+    "prompt": "Extract a habit, routine, or practice mentioned in the transcript that has positive impact. Use specific details about what you do and the benefits discussed in the conversation. Make it actionable based on what was actually shared.",
     "category": "educational",
     "threadFriendly": true,
     "applicability": {
@@ -292,7 +292,7 @@
   {
     "id": "share-framework",
     "name": "Share a Framework",
-    "prompt": "Share a framework that you use with others. Help your followers to save time or be more productive. There might be things that you take for granted, but would be very helpful to them.",
+    "prompt": "Identify a framework, mental model, or structured approach mentioned in the transcript. Use the specific framework discussed - its components, steps, or principles. Help your followers save time or be more productive using what was actually shared in the conversation.",
     "category": "educational",
     "threadFriendly": true,
     "applicability": {
@@ -302,7 +302,7 @@
   {
     "id": "productivity-hack",
     "name": "Share a Productivity Hack",
-    "prompt": "Share a productivity/growth/life hack. Save people time sharing something you already figured out.",
+    "prompt": "Extract a productivity hack, growth tip, or life optimization mentioned in the transcript. Use the specific technique, tool, or insight discussed to save people time. Share something you've figured out based on what was actually covered in the conversation.",
     "category": "educational",
     "threadFriendly": false,
     "applicability": {
@@ -312,7 +312,7 @@
   {
     "id": "advice-for-beginners",
     "name": "Advice for Beginners",
-    "prompt": "What advice do beginners need to hear about your niche? Time to share your learnings.",
+    "prompt": "Use insights from the transcript to craft advice for beginners in the specific niche, domain, or skill discussed. Reference actual learnings, mistakes, or knowledge shared in the conversation. Make it specific to the topics covered.",
     "category": "educational",
     "threadFriendly": true,
     "applicability": {
@@ -322,7 +322,7 @@
   {
     "id": "useful-tools-list",
     "name": "List of Useful Tools",
-    "prompt": "Make a list of useful tools for your audience/niche. What value does each tool provide? You can also make this a long-running thread.",
+    "prompt": "Extract tools, software, or resources mentioned in the transcript. Create a list of these specific tools discussed, explaining what value each provides based on the conversation. Reference actual tools and their benefits from what was shared.",
     "category": "educational",
     "threadFriendly": true,
     "applicability": {
@@ -332,7 +332,7 @@
   {
     "id": "tip-to-help",
     "name": "Share a Helpful Tip",
-    "prompt": "Share a tip to help people save time or be more productive. Share your learnings, your followers will be grateful for this.",
+    "prompt": "Extract a practical tip from the transcript that helps people save time or be more productive. Use specific learnings, techniques, or insights discussed in the conversation. Make it actionable based on what was actually shared.",
     "category": "educational",
     "threadFriendly": true,
     "applicability": {
@@ -342,7 +342,7 @@
   {
     "id": "top-actionable-advice",
     "name": "Top 3-5 Actionable Advice",
-    "prompt": "Share your top 3-5 actionable advice. Works best if you tie them to your niche/topic.",
+    "prompt": "Extract 3-5 pieces of actionable advice from the transcript. Use specific tips, insights, or recommendations discussed in the conversation. Tie them to the actual niche or topic covered in the transcript.",
     "category": "educational",
     "threadFriendly": true,
     "applicability": {
@@ -352,7 +352,7 @@
   {
     "id": "tool-tip",
     "name": "Tip on Using a Tool",
-    "prompt": "Share a tip on how to use a product or tool successfully. It may be a product you use, or your own (Build in Public).",
+    "prompt": "Identify a specific tool, product, or software mentioned in the transcript. Share a tip on how to use this particular tool successfully based on insights from the conversation. It may be a tool discussed, your own product, or something you've learned about.",
     "category": "educational",
     "threadFriendly": false,
     "applicability": {
@@ -362,7 +362,7 @@
   {
     "id": "progress-on-challenge",
     "name": "Progress on a Challenge",
-    "prompt": "What progress did you make about a challenge that you're facing? Halfway through a goal, share setbacks, achievements, you name it.",
+    "prompt": "Find a challenge, goal, or project mentioned in the transcript. Share progress on this specific challenge using details from the conversation - setbacks, achievements, or milestones discussed. Reference the actual work being done.",
     "category": "behind-the-scenes",
     "threadFriendly": false,
     "applicability": {
@@ -372,7 +372,7 @@
   {
     "id": "goal-for-week",
     "name": "Goal for Next Week",
-    "prompt": "What's your goal for the next week? Make a plan, then ask what your followers' one is.",
+    "prompt": "Extract a goal, objective, or planned task from the transcript. Use specific work, projects, or milestones discussed to share what you're planning for next week. Ask your followers about their goals based on the topics covered.",
     "category": "behind-the-scenes",
     "threadFriendly": false,
     "applicability": {
@@ -382,7 +382,7 @@
   {
     "id": "behind-the-scenes",
     "name": "Share Behind the Scenes",
-    "prompt": "Share a behind the scenes. Trigger people's curiosity. It can be your workstation, something you're working on, or even a photo of your cat on the keyboard.",
+    "prompt": "Find a process, workspace, project detail, or work-in-progress mentioned in the transcript. Share behind-the-scenes content about this specific aspect of your work. Use actual details from the conversation to trigger curiosity.",
     "category": "behind-the-scenes",
     "threadFriendly": true,
     "applicability": {
@@ -392,7 +392,7 @@
   {
     "id": "working-on-teaser",
     "name": "Teaser About Work",
-    "prompt": "Share a teaser about something you're working on. People want to see what you're work in progress.",
+    "prompt": "Identify an ongoing project, feature, or development mentioned in the transcript. Share a teaser about this specific work-in-progress using details from the conversation. Make people curious about what you're building based on what was discussed.",
     "category": "behind-the-scenes",
     "threadFriendly": false,
     "applicability": {
@@ -402,7 +402,7 @@
   {
     "id": "analytics-update",
     "name": "Share Analytics Update",
-    "prompt": "Share an analytics update. Tie it to an achievement, analysis, or change you made.",
+    "prompt": "Find metrics, data, or analytics mentioned in the transcript. Share an analytics update using the specific numbers, trends, or insights discussed. Tie it to achievements, analysis, or changes mentioned in the conversation.",
     "category": "behind-the-scenes",
     "threadFriendly": false,
     "applicability": {
@@ -412,7 +412,7 @@
   {
     "id": "milestone-reached",
     "name": "Share a Milestone",
-    "prompt": "Share a milestone you've reached. People are rooting for you and love this kind of update.",
+    "prompt": "Extract a milestone, achievement, or significant accomplishment mentioned in the transcript. Share this specific milestone using details from the conversation. People are rooting for you and love updates about actual progress made.",
     "category": "behind-the-scenes",
     "threadFriendly": false,
     "applicability": {
@@ -422,7 +422,7 @@
   {
     "id": "doing-photo",
     "name": "Photo of What You're Doing",
-    "prompt": "Share a pic of what you're doing. Any activity/hobby/work you're doing is fine.",
+    "prompt": "Identify an activity, hobby, work, or project mentioned in the transcript. Frame a post about sharing a photo of this specific thing you're doing. Use actual content from the conversation to make it authentic.",
     "category": "behind-the-scenes",
     "threadFriendly": false,
     "applicability": {
@@ -432,7 +432,7 @@
   {
     "id": "project-progress",
     "name": "Show Project Progress",
-    "prompt": "Show your progress on an active project. Share a screenshot about your product/customer/whatever.",
+    "prompt": "Find a specific project, feature, or development mentioned in the transcript. Show progress on this active project using details from the conversation - metrics, features completed, or visual progress discussed. Reference actual project work from the conversation.",
     "category": "behind-the-scenes",
     "threadFriendly": false,
     "applicability": {
@@ -442,7 +442,7 @@
   {
     "id": "celebrate-3-days",
     "name": "Celebrate Last 3 Days",
-    "prompt": "What's worth celebrating in the last 3 days? Reflect on small wins you have had in the last few days.",
+    "prompt": "Extract recent wins, accomplishments, or positive developments mentioned in the transcript. Reflect on small wins from the conversation and frame them as worth celebrating from the last few days. Use actual achievements discussed.",
     "category": "reflective",
     "threadFriendly": false,
     "applicability": {
@@ -452,7 +452,7 @@
   {
     "id": "highlight-of-week",
     "name": "Highlight of the Week",
-    "prompt": "What's your highlight of the week? Reflect on your week and share your best up or down.",
+    "prompt": "Find a notable moment, achievement, or challenge from the transcript. Frame it as your highlight of the week using actual events, wins, or learnings discussed in the conversation. Share the best (or most interesting) experience mentioned.",
     "category": "reflective",
     "threadFriendly": false,
     "applicability": {
@@ -462,7 +462,7 @@
   {
     "id": "biggest-achievement-month",
     "name": "Biggest Achievement Last Month",
-    "prompt": "What's your biggest achievement from last month? Take a step back and look at what you've done last month.",
+    "prompt": "Extract a significant achievement or accomplishment from the transcript. Frame it as your biggest achievement from last month using specific details from the conversation about what you've accomplished. Reference actual progress discussed.",
     "category": "reflective",
     "threadFriendly": false,
     "applicability": {
@@ -472,7 +472,7 @@
   {
     "id": "favorite-thing",
     "name": "Your Favorite Thing",
-    "prompt": "What's your favorite thing about something? It can be a mindset thing, or something you like to do.",
+    "prompt": "Identify something you appreciate, enjoy, or value from the transcript - a mindset, activity, tool, or approach discussed. Share your favorite thing about this specific topic using details from the conversation.",
     "category": "reflective",
     "threadFriendly": false,
     "applicability": {
@@ -482,7 +482,7 @@
   {
     "id": "insights-last-month",
     "name": "Insights About Last Month",
-    "prompt": "Share your insights about last month. They can be about Twitter, your product, your work, etc.",
+    "prompt": "Extract insights, learnings, or realizations from the transcript. Frame them as reflections from last month using the specific topics discussed - whether about social media, your product, your work, or other areas covered in the conversation.",
     "category": "reflective",
     "threadFriendly": false,
     "applicability": {
@@ -492,7 +492,7 @@
   {
     "id": "before-after",
     "name": "Share a Before/After Transformation",
-    "prompt": "Share a before/after transformation. It can be about you/someone/a product you're working on.",
+    "prompt": "Extract a transformation, improvement, or change mentioned in the transcript. Use the specific before/after details discussed - whether about yourself, a project, or a product. Reference actual changes and outcomes from the conversation.",
     "category": "reflective",
     "threadFriendly": false,
     "applicability": {
@@ -502,7 +502,7 @@
   {
     "id": "favorite-podcast",
     "name": "Favorite Podcast",
-    "prompt": "What's a podcast you enjoy listening? Share their latest episode.",
+    "prompt": "Identify a podcast, episode, or audio content mentioned in the transcript. Use the specific podcast discussed to share what you enjoy about it, referencing actual content or insights from the conversation.",
     "category": "curation",
     "threadFriendly": false,
     "applicability": {
@@ -512,7 +512,7 @@
   {
     "id": "life-changing-book",
     "name": "Life-Changing Book",
-    "prompt": "Share a life-changing book you read recently. People are always looking for good books to read.",
+    "prompt": "Extract a book, reading, or written resource mentioned in the transcript. Share this specific book using details from the conversation about why it's impactful or what you learned from it. People are always looking for good books to read.",
     "category": "curation",
     "threadFriendly": false,
     "applicability": {
@@ -522,7 +522,7 @@
   {
     "id": "resource-tool-share",
     "name": "Share a Resource/Tool",
-    "prompt": "Share a resource/tool that people need to know about. If you find something useful, other people may like it too.",
+    "prompt": "Identify a specific resource, tool, or service mentioned in the transcript. Share this particular resource using details from the conversation about why it's useful. If you found something helpful based on what was discussed, other people may like it too.",
     "category": "curation",
     "threadFriendly": false,
     "applicability": {
@@ -532,7 +532,7 @@
   {
     "id": "valuable-thread",
     "name": "Share a Valuable Thread",
-    "prompt": "Share a thread you find valuable. Something you continue referring to.",
+    "prompt": "Find a discussion, concept, or insight from the transcript that would make a great thread reference. Frame a post about sharing valuable content related to the specific topics discussed - something worth referring back to based on the conversation.",
     "category": "curation",
     "threadFriendly": false,
     "applicability": {
@@ -542,7 +542,7 @@
   {
     "id": "newsletters-like",
     "name": "Share Newsletters You Like",
-    "prompt": "Share one or more newsletters you like. Make people happy: the creator and the new subscribers.",
+    "prompt": "Identify newsletters, publications, or recurring content mentioned in the transcript. Share these specific newsletters using details from the conversation about what makes them valuable. Make people happy: the creators and potential new subscribers.",
     "category": "curation",
     "threadFriendly": false,
     "applicability": {
@@ -552,7 +552,7 @@
   {
     "id": "article-perspective",
     "name": "Perspective on an Article",
-    "prompt": "Share your perspective on an article you read. It could be a life-changing article or one you bookmarked.",
+    "prompt": "Extract an article, blog post, or written piece mentioned in the transcript. Share your perspective on this specific article using insights from the conversation. Reference what makes it impactful or worth reading based on what was discussed.",
     "category": "curation",
     "threadFriendly": true,
     "applicability": {
@@ -562,7 +562,7 @@
   {
     "id": "curate-niche-content",
     "name": "Curate Content About Your Niche",
-    "prompt": "Curate content about your niche. If you collect quality content (links, images, videos), give value to your followers by sharing it with them.",
+    "prompt": "Identify the niche, domain, or topic area discussed in the transcript. Curate quality content about this specific niche using resources, links, or materials mentioned in the conversation. Give value to your followers by sharing relevant content based on what was discussed.",
     "category": "curation",
     "threadFriendly": true,
     "applicability": {
@@ -572,7 +572,7 @@
   {
     "id": "appreciate-helper",
     "name": "Appreciate Someone Who Helped",
-    "prompt": "Appreciate someone who has helped you recently. What did they help you with? What have you learned?",
+    "prompt": "Identify someone mentioned in the transcript who provided help, advice, or support. Appreciate this specific person using details from the conversation about what they helped with and what you learned. Reference actual interactions discussed.",
     "category": "curation",
     "threadFriendly": false,
     "applicability": {
@@ -582,7 +582,7 @@
   {
     "id": "show-support",
     "name": "Show Support for Someone",
-    "prompt": "Show your support for someone you like.",
+    "prompt": "Find a person, creator, or project mentioned in the transcript that you appreciate. Show support for this specific person or work using details from the conversation about what makes them valuable or inspiring.",
     "category": "curation",
     "threadFriendly": false,
     "applicability": {
@@ -592,7 +592,7 @@
   {
     "id": "quote-reframe",
     "name": "Quote a Tweet to Reframe",
-    "prompt": "Quote a tweet to reframe it. Write it in a different way or add your thoughts. Look in your likes/bookmarks for great material to quote.",
+    "prompt": "Extract an insight, opinion, or idea from the transcript that's worth reframing or adding perspective to. Use the specific content discussed to create a post that reframes this idea in a different way or adds your thoughts based on the conversation.",
     "category": "curation",
     "threadFriendly": true,
     "applicability": {
@@ -602,7 +602,7 @@
   {
     "id": "quote-support",
     "name": "Quote a Tweet to Show Support",
-    "prompt": "Quote a tweet to show support. Let people know what you like, or something cool that you've recently discovered.",
+    "prompt": "Identify something cool, valuable, or inspiring mentioned in the transcript - a discovery, insight, or resource. Frame a post showing support for this specific thing discussed, letting people know what you like about it based on the conversation.",
     "category": "curation",
     "threadFriendly": false,
     "applicability": {
@@ -612,7 +612,7 @@
   {
     "id": "repurpose-reply-tweet",
     "name": "Repurpose a Reply to a Tweet",
-    "prompt": "Repurpose a reply you wrote to someone else's tweet. There are plenty of ideas worth repurposing on your replies.",
+    "prompt": "Extract a strong point, explanation, or insight from the transcript that could work as a standalone thought. Repurpose this content using the specific ideas discussed - turn a conversational insight into a polished post based on what was actually shared.",
     "category": "curation",
     "threadFriendly": true,
     "applicability": {
@@ -622,7 +622,7 @@
   {
     "id": "update-bio",
     "name": "Update Your Bio/Photo/Cover",
-    "prompt": "Update your bio/photo/cover. There is a high chance to get many profile visits.",
+    "prompt": "Based on changes, milestones, or new directions mentioned in the transcript, create a post about updating your profile. Use specific accomplishments, focus areas, or identity shifts discussed to announce why you're refreshing your bio, photo, or cover.",
     "category": "curation",
     "threadFriendly": false,
     "applicability": {
@@ -632,7 +632,7 @@
   {
     "id": "meme-for-niche",
     "name": "Use a Popular Meme for Your Niche",
-    "prompt": "Use a popular meme format, but for your niche. A good meme won't bring many new followers, but it will make people laugh.",
+    "prompt": "Identify a funny, relatable, or ironic situation from the transcript that could work as meme material. Use the specific niche, challenge, or observation discussed to create humor relevant to your audience based on what was actually covered in the conversation.",
     "category": "curation",
     "threadFriendly": false,
     "applicability": {
