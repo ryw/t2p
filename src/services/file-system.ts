@@ -1,8 +1,9 @@
-import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { randomUUID } from 'crypto';
 import type { Post } from '../types/post.js';
 import type { T2pConfig } from '../types/config.js';
+import type { T2pState, ProcessedFileInfo } from '../types/state.js';
 import { DEFAULT_CONFIG } from '../types/config.js';
 import { FileSystemError, ConfigError, NotInitializedError } from '../utils/errors.js';
 import { validateConfig } from '../utils/validation.js';
@@ -124,5 +125,69 @@ export class FileSystemService {
 
   fileExists(path: string): boolean {
     return existsSync(path);
+  }
+
+  loadState(): T2pState {
+    const statePath = join(this.cwd, '.t2p-state.json');
+
+    if (!existsSync(statePath)) {
+      return { processedFiles: {} };
+    }
+
+    try {
+      const content = readFileSync(statePath, 'utf-8');
+      return JSON.parse(content) as T2pState;
+    } catch (error) {
+      throw new FileSystemError(`Failed to load state: ${(error as Error).message}`);
+    }
+  }
+
+  saveState(state: T2pState): void {
+    const statePath = join(this.cwd, '.t2p-state.json');
+
+    try {
+      writeFileSync(statePath, JSON.stringify(state, null, 2), 'utf-8');
+    } catch (error) {
+      throw new FileSystemError(`Failed to save state: ${(error as Error).message}`);
+    }
+  }
+
+  isFileProcessed(filePath: string, state: T2pState): boolean {
+    const fileInfo = state.processedFiles[filePath];
+    if (!fileInfo) {
+      return false;
+    }
+
+    // Check if file has been modified since last processing
+    try {
+      const stats = statSync(filePath);
+      const currentModifiedAt = stats.mtime.toISOString();
+      return fileInfo.modifiedAt === currentModifiedAt;
+    } catch (error) {
+      // If we can't stat the file, consider it unprocessed
+      return false;
+    }
+  }
+
+  markFileProcessed(filePath: string, postsGenerated: number, state: T2pState): T2pState {
+    try {
+      const stats = statSync(filePath);
+      const modifiedAt = stats.mtime.toISOString();
+
+      return {
+        ...state,
+        processedFiles: {
+          ...state.processedFiles,
+          [filePath]: {
+            path: filePath,
+            processedAt: new Date().toISOString(),
+            modifiedAt,
+            postsGenerated,
+          },
+        },
+      };
+    } catch (error) {
+      throw new FileSystemError(`Failed to mark file as processed: ${(error as Error).message}`);
+    }
   }
 }

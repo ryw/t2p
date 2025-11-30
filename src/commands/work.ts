@@ -11,6 +11,7 @@ import type { PostGenerationResult } from '../types/post.js';
 interface WorkOptions {
   model?: string;
   verbose?: boolean;
+  force?: boolean;
 }
 
 function buildPrompt(systemPrompt: string, styleGuide: string, workInstructions: string, transcript: string): string {
@@ -121,16 +122,30 @@ export async function workCommand(options: WorkOptions): Promise<void> {
 
   logger.success(`Found ${inputFiles.length} input file${inputFiles.length === 1 ? '' : 's'}`);
 
+  // Load state
+  let state = fs.loadState();
+  if (options.force) {
+    logger.info('Force mode: reprocessing all files');
+  }
+
   // Step 3: Process files
   logger.section('[3/3] Processing files...');
 
   let totalProcessed = 0;
   let totalGenerated = 0;
   let totalErrors = 0;
+  let totalSkipped = 0;
 
   for (const filePath of inputFiles) {
     const relativePath = relative(cwd, filePath);
     logger.step(relativePath);
+
+    // Check if file was already processed (unless --force is used)
+    if (!options.force && fs.isFileProcessed(filePath, state)) {
+      logger.info('  Skipped (already processed)');
+      totalSkipped++;
+      continue;
+    }
 
     try {
       // Read transcript
@@ -196,11 +211,17 @@ export async function workCommand(options: WorkOptions): Promise<void> {
       logger.info(`  Generated ${posts.length} posts`);
       totalProcessed++;
       totalGenerated += posts.length;
+
+      // Mark file as processed
+      state = fs.markFileProcessed(filePath, posts.length, state);
     } catch (error) {
       logger.error(`  Failed: ${(error as Error).message}`);
       totalErrors++;
     }
   }
+
+  // Save state
+  fs.saveState(state);
 
   // Summary
   logger.blank();
@@ -208,6 +229,9 @@ export async function workCommand(options: WorkOptions): Promise<void> {
   logger.blank();
   logger.info('Summary:');
   logger.info(`- Files processed: ${totalProcessed}`);
+  if (totalSkipped > 0) {
+    logger.info(`- Files skipped: ${totalSkipped} (already processed)`);
+  }
   logger.info(`- Posts generated: ${totalGenerated}`);
   if (totalErrors > 0) {
     logger.info(`- Errors: ${totalErrors}`);

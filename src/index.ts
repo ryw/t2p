@@ -31,6 +31,7 @@ program
   .description('Process input files and generate social media posts')
   .option('-m, --model <model>', 'Override Ollama model')
   .option('-v, --verbose', 'Verbose output')
+  .option('-f, --force', 'Force reprocessing of all files (bypass tracking)')
   .action(workCommand);
 
 program

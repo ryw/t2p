@@ -82,6 +82,7 @@ Process all files in `input/` and generate new post ideas. Posts are appended to
 **Options:**
 - `-m, --model <model>` — Override the Ollama model from config
 - `-v, --verbose` — Show detailed processing information
+- `-f, --force` — Force reprocessing of all files (bypass tracking)
 
 ```bash
 # Use default settings
@@ -93,17 +94,28 @@ t2p work --model llama3.1
 # Verbose output with processing details
 t2p work --verbose
 
+# Force reprocessing all files (ignore state tracking)
+t2p work --force
+
 # Combine options
-t2p work --model llama2 --verbose
+t2p work --model llama2 --verbose --force
 ```
 
 **What it does:**
 1. Validates environment (checks for Ollama and required files)
 2. Loads your style guide and generation instructions
 3. Scans `input/` for `.txt` and `.md` files
-4. Processes each file through Ollama
-5. Parses generated posts and saves to `posts.jsonl`
-6. Displays summary with file counts and any errors
+4. **Skips files that have already been processed** (unless `--force` is used)
+5. Processes each file through Ollama
+6. Parses generated posts and saves to `posts.jsonl`
+7. Tracks processed files in `.t2p-state.json` to prevent duplicates
+8. Displays summary with file counts and any errors
+
+**File Tracking:**
+t2p automatically tracks which files have been processed to prevent generating duplicate posts. Files are considered "processed" until they are modified. This means:
+- Running `t2p work` multiple times will only process new or modified files
+- Use `--force` to ignore tracking and reprocess all files
+- The tracking state is stored in `.t2p-state.json` (not committed to git)
 
 ### `t2p analyze-x`
 

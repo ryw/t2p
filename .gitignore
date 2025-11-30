@@ -25,6 +25,9 @@ Thumbs.db
 # OAuth tokens (sensitive)
 .t2p-tokens.json
 
+# State tracking (local)
+.t2p-state.json
+
 # Testing
 coverage/
 
