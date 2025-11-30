@@ -10,7 +10,7 @@ Generate social media post ideas from the provided transcript or notes.
 4. Consider multiple angles or takes on the same content
 
 ## Output Requirements
-- Generate 3-5 post ideas per transcript
+- Generate 3-5 post ideas per file
 - Each post should be self-contained and understandable without context
 - Posts should follow the style guide in style.md
 - Focus on value: insights, learnings, or interesting perspectives
