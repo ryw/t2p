@@ -410,10 +410,25 @@ export async function workCommand(options: WorkOptions): Promise<void> {
               fs.appendPost(post);
               postsGenerated++;
 
-              // Show completion without verbose
+              // Show completion with post content
               if (!options.verbose) {
                 logger.success(`  ${progress} ✓ Complete`);
               }
+
+              // Display the generated post
+              logger.blank();
+              const bangerInfo = post.metadata.bangerScore
+                ? ` [banger: ${post.metadata.bangerScore}/10]`
+                : '';
+              logger.info(`  📝 Post ${i + 1}: ${strategy.name}${bangerInfo}`);
+              logger.info('  ' + '─'.repeat(60));
+              // Indent each line of the post content
+              const lines = postData.content.split('\n');
+              lines.forEach(line => {
+                logger.info(`  ${line}`);
+              });
+              logger.info('  ' + '─'.repeat(60));
+              logger.blank();
             } else {
               logger.info(`  ${progress} ✗ No valid post generated`);
             }
@@ -487,6 +502,21 @@ export async function workCommand(options: WorkOptions): Promise<void> {
 
           fs.appendPost(post);
           postsGenerated++;
+
+          // Display the generated post
+          logger.blank();
+          const bangerInfo = post.metadata.bangerScore
+            ? ` [banger: ${post.metadata.bangerScore}/10]`
+            : '';
+          logger.info(`  📝 Post ${i + 1}${bangerInfo}`);
+          logger.info('  ' + '─'.repeat(60));
+          // Indent each line of the post content
+          const lines = postData.content.split('\n');
+          lines.forEach(line => {
+            logger.info(`  ${line}`);
+          });
+          logger.info('  ' + '─'.repeat(60));
+          logger.blank();
         }
 
         logger.success(`  ✓ Saved ${posts.length} posts`);
