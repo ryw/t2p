@@ -11,6 +11,7 @@ t2p is a CLI tool that processes meeting transcripts, notes, and other written c
 - ✅ **Local LLM Processing** — Uses Ollama for privacy-first content generation
 - ✅ **Content Strategies** — 75 proven post formats for maximum variety and engagement
 - ✅ **Customizable Style** — Define your brand voice and posting style
+- ✅ **Community Examples** — Learn from real style.md examples shared by other users
 - ✅ **X Post Analysis** — Auto-generate style guides from your X (Twitter) posts
 - ✅ **JSONL Output** — Generated posts stored in an append-only format for easy tracking
 - ✅ **Multiple File Processing** — Batch process all transcripts in one command
@@ -653,6 +654,46 @@ All prompts used by t2p are stored as editable files in the `prompts/` directory
 - You want to change the core prompting strategy
 - You're experimenting with prompt engineering
 - You need very specific AI behavior
+
+## Community Style Examples
+
+Learn from real-world examples! The `community-examples/styles/` directory contains style.md files contributed by the t2p community. Browse these to:
+
+- See how others define their voice and tone
+- Discover different writing styles (casual, professional, humorous, etc.)
+- Learn formatting approaches (emoji usage, hashtag strategies, thread preferences)
+- Find inspiration for your own style guide
+
+### Using Community Examples
+
+```bash
+# Browse available examples
+ls community-examples/styles/
+
+# Read an example
+cat community-examples/styles/example-technical-founder.md
+
+# Copy as starting point for your style
+cp community-examples/styles/example-technical-founder.md prompts/style.md
+# Then customize it with your own voice!
+```
+
+### Contributing Your Style
+
+Have a style.md you're proud of? Share it with the community!
+
+1. Copy your `prompts/style.md` to `community-examples/styles/your-name.md`
+2. Remove any private/sensitive information
+3. Add a comment at the top with context (target audience, niche, what makes it unique)
+4. Submit a PR
+
+See `community-examples/styles/README.md` for full contribution guidelines.
+
+**Why contribute?**
+- Help others learn from your experience
+- Get feedback from the community
+- Build a library of proven styles
+- Showcase different use cases (dev tools, B2B SaaS, content creators, etc.)
 
 ## Tips & Best Practices
 
