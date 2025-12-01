@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { initCommand } from './commands/init.js';
 import { workCommand } from './commands/work.js';
+import { postsCommand } from './commands/posts.js';
 import { analyzeXCommand } from './commands/analyze-x.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -43,6 +44,15 @@ program
   .option('--category <category>', 'Filter strategies by category (with --list-strategies)')
   .option('--no-strategies', 'Disable strategy-based generation (use legacy mode)')
   .action(workCommand);
+
+program
+  .command('posts')
+  .description('View recently generated posts in human-readable format')
+  .option('-n, --count <number>', 'Number of posts to show (default: 10)', parseInt)
+  .option('--strategy <name>', 'Filter by strategy name or ID')
+  .option('--min-score <score>', 'Show posts with banger score >= N', parseInt)
+  .option('--source <text>', 'Filter by source file')
+  .action(postsCommand);
 
 program
   .command('analyze-x')
