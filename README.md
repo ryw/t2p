@@ -1,14 +1,14 @@
 # t2p
 
-> **transcripts → posts**: Transform meeting transcripts and other notes into social media post drafts using local LLMs.
+> **transcripts → posts**: Transform meeting transcripts and other notes into social media post drafts using local LLMs or cloud AI.
 
 ## Overview
 
-t2p is a CLI tool that processes meeting transcripts, notes, and other written content into social media post ideas using Ollama. Keep your content pipeline local and private—no data leaves your machine.
+t2p is a CLI tool that processes meeting transcripts, notes, and other written content into social media post ideas using local LLMs (Ollama) or cloud-based AI (Anthropic Claude). Keep your content pipeline local and private with Ollama, or leverage Claude's powerful language models for enhanced quality.
 
 ## Features
 
-- ✅ **Local LLM Processing** — Uses Ollama for privacy-first content generation
+- ✅ **Flexible LLM Providers** — Choose between Ollama (local, privacy-first) or Anthropic Claude (cloud-based, high-quality)
 - ✅ **Content Strategies** — 75 proven post formats for maximum variety and engagement
 - ✅ **Customizable Style** — Define your brand voice and posting style
 - ✅ **Community Examples** — Learn from real style.md examples shared by other users
@@ -20,7 +20,9 @@ t2p is a CLI tool that processes meeting transcripts, notes, and other written c
 ## Prerequisites
 
 - **Node.js** >= 18.0.0
-- **Ollama** — [Install Ollama](https://ollama.ai) and ensure it's running (`ollama serve`)
+- **LLM Provider** — Choose one:
+  - **Ollama** (local) — [Install Ollama](https://ollama.ai) and ensure it's running (`ollama serve`)
+  - **Anthropic Claude** (cloud) — Get an API key from [Anthropic Console](https://console.anthropic.com/)
 
 ## Installation
 
@@ -207,8 +209,12 @@ t2p stage 5
 
 Configuration is stored in `.t2prc.json`:
 
+**Using Ollama (default):**
 ```json
 {
+  "llm": {
+    "provider": "ollama"
+  },
   "ollama": {
     "host": "http://127.0.0.1:11434",
     "model": "llama3.1",
@@ -227,13 +233,46 @@ Configuration is stored in `.t2prc.json`:
 }
 ```
 
+**Using Anthropic Claude:**
+```json
+{
+  "llm": {
+    "provider": "anthropic"
+  },
+  "anthropic": {
+    "model": "claude-3-5-sonnet-20241022",
+    "maxTokens": 4096
+  },
+  "generation": {
+    "postsPerTranscript": 8,
+    "temperature": 0.7,
+    "strategies": {
+      "enabled": true,
+      "autoSelect": true,
+      "diversityWeight": 0.7,
+      "preferThreadFriendly": false
+    }
+  }
+}
+```
+
+Set your Anthropic API key in a `.env` file:
+```bash
+ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
+```
+
+See [ANTHROPIC_SETUP.md](ANTHROPIC_SETUP.md) for detailed instructions on using Claude.
+
 ### Configuration Options
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `ollama.host` | `http://127.0.0.1:11434` | Ollama server URL |
-| `ollama.model` | `llama3.1` | LLM model to use |
-| `ollama.timeout` | `60000` | Request timeout in milliseconds |
+| `llm.provider` | `ollama` | LLM provider: `ollama` or `anthropic` |
+| `ollama.host` | `http://127.0.0.1:11434` | Ollama server URL (when using Ollama) |
+| `ollama.model` | `llama3.1` | Ollama model to use (when using Ollama) |
+| `ollama.timeout` | `60000` | Request timeout in milliseconds (when using Ollama) |
+| `anthropic.model` | `claude-3-5-sonnet-20241022` | Claude model to use (when using Anthropic) |
+| `anthropic.maxTokens` | `4096` | Maximum tokens in response (when using Anthropic) |
 | `generation.postsPerTranscript` | `8` | Number of posts to generate per input file |
 | `generation.temperature` | `0.7` | LLM temperature (0.0-1.0, higher = more creative) |
 | `generation.strategies.enabled` | `true` | Enable strategy-based post generation |
@@ -708,10 +747,18 @@ See `community-examples/style/README.md` for full contribution guidelines.
 - Update `prompts/work.md` if posts aren't matching expectations
 
 **Models**
+
+When using Ollama:
 - `llama3.1` (default) — Good balance of quality and speed
 - `llama2` — Faster, good for quick iterations
 - `mixtral` — More creative outputs
 - Experiment with different models using `--model` flag
+
+When using Anthropic Claude:
+- `claude-3-5-sonnet-20241022` (default) — Best balance of intelligence, speed, and cost
+- `claude-3-opus-20240229` — Most capable, best for complex tasks
+- `claude-3-haiku-20240307` — Fastest and most cost-effective
+- See [ANTHROPIC_SETUP.md](ANTHROPIC_SETUP.md) for pricing details
 
 **Output Management**
 - `posts.jsonl` is append-only — never deletes old posts
@@ -745,7 +792,7 @@ See `community-examples/style/README.md` for full contribution guidelines.
 2. Start the server: `ollama serve`
 3. Verify it's running: `curl http://localhost:11434`
 
-### Model not found
+### Ollama model not found
 
 ```
 ✗ Model 'llama3.1' not found. Run: ollama pull llama3.1
@@ -755,6 +802,31 @@ See `community-examples/style/README.md` for full contribution guidelines.
 ```bash
 ollama pull llama3.1
 ```
+
+### Anthropic API key not found
+
+```
+✗ Anthropic API key not found. Set ANTHROPIC_API_KEY environment variable or add to config.
+```
+
+**Solution:**
+Create a `.env` file in your project directory:
+```bash
+ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
+```
+
+Or export the environment variable:
+```bash
+export ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
+```
+
+### Anthropic API is not available
+
+**Solution:**
+- Check your API key is valid
+- Verify you have internet connectivity
+- Ensure your Anthropic account has credits
+- Check the status at https://status.anthropic.com/
 
 ### Not a t2p project
 
