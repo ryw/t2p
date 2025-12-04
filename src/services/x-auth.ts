@@ -37,16 +37,32 @@ export class XAuthService {
     const authCode = await this.startCallbackServer(state, authUrl);
 
     // Exchange code for tokens
+    let loginResult;
+    try {
+      loginResult = await client.loginWithOAuth2({
+        code: authCode,
+        codeVerifier,
+        redirectUri: REDIRECT_URI,
+      });
+    } catch (error: any) {
+      // Provide more helpful error messages for common issues
+      if (error.code === 401 || error.message?.includes('401')) {
+        throw new Error(
+          'X API authentication failed (401). This usually means:\n' +
+          '  1. The Client ID is invalid or the app was deleted\n' +
+          '  2. The app\'s OAuth 2.0 settings are misconfigured\n' +
+          '  3. The redirect URI doesn\'t match: http://127.0.0.1:3000/callback\n' +
+          'Please check your app at https://developer.x.com/en/portal/dashboard'
+        );
+      }
+      throw error;
+    }
+
     const {
-      client: loggedClient,
       accessToken,
       refreshToken,
       expiresIn,
-    } = await client.loginWithOAuth2({
-      code: authCode,
-      codeVerifier,
-      redirectUri: REDIRECT_URI,
-    });
+    } = loginResult;
 
     const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
 
