@@ -11,6 +11,7 @@ import { dirname, join } from 'path';
 import { initCommand } from './commands/init.js';
 import { workCommand } from './commands/work.js';
 import { postsCommand } from './commands/posts.js';
+import { reviewCommand } from './commands/review.js';
 import { analyzeXCommand } from './commands/analyze-x.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -54,6 +55,12 @@ program
   .option('--source <text>', 'Filter by source file')
   .option('--eval', 'Evaluate posts missing banger scores')
   .action(postsCommand);
+
+program
+  .command('review')
+  .description('Review posts one-by-one and mark as keep/reject')
+  .option('--min-score <score>', 'Only review posts with score >= N', parseInt)
+  .action(reviewCommand);
 
 program
   .command('analyze-x')

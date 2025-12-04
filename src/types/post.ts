@@ -29,6 +29,8 @@ export interface Post {
       name: string;
       category: string;
     };
+    reviewStatus?: 'keep' | 'reject';
+    reviewedAt?: string;
   };
   timestamp: string;
   status: 'draft' | 'staged' | 'published';
