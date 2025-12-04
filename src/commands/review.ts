@@ -80,8 +80,8 @@ export async function reviewCommand(options: ReviewOptions): Promise<void> {
       return;
     }
 
-    // Filter to new posts only
-    let postsToReview = allPosts.filter((p) => p.status === 'new');
+    // Filter to new and keep posts (not staged or rejected)
+    let postsToReview = allPosts.filter((p) => p.status === 'new' || p.status === 'keep');
 
     // Apply min score filter if specified
     if (options.minScore !== undefined) {
