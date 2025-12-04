@@ -33,7 +33,7 @@ export interface Post {
     reviewedAt?: string;
   };
   timestamp: string;
-  status: 'draft' | 'staged' | 'published';
+  status: 'draft' | 'staged' | 'published' | 'rejected';
 }
 
 export interface PostGenerationResult {

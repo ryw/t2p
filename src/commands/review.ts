@@ -135,9 +135,12 @@ export async function reviewCommand(options: ReviewOptions): Promise<void> {
         continue;
       }
 
-      // Update post metadata
+      // Update post metadata and status
       post.metadata.reviewStatus = decision;
       post.metadata.reviewedAt = new Date().toISOString();
+      if (decision === 'reject') {
+        post.status = 'rejected';
+      }
 
       // Save immediately (find post in allPosts and update)
       const postIndex = allPosts.findIndex((p) => p.id === post.id);
