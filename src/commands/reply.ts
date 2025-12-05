@@ -18,6 +18,13 @@ interface ReplyOpportunity {
   reasoning: string;
 }
 
+function formatFollowerCount(count?: number): string {
+  if (!count) return '';
+  if (count >= 1_000_000) return ` (${(count / 1_000_000).toFixed(1)}M followers)`;
+  if (count >= 1_000) return ` (${(count / 1_000).toFixed(1)}K followers)`;
+  return ` (${count} followers)`;
+}
+
 function displayTweetForReply(opportunity: ReplyOpportunity, index: number, total: number): void {
   logger.blank();
   logger.info(`[${index + 1}/${total}] Reply opportunity`);
@@ -27,7 +34,8 @@ function displayTweetForReply(opportunity: ReplyOpportunity, index: number, tota
   const author = opportunity.tweet.authorUsername
     ? `@${opportunity.tweet.authorUsername}`
     : 'Unknown';
-  logger.info(`${author}:`);
+  const followers = formatFollowerCount(opportunity.tweet.authorFollowersCount);
+  logger.info(`${author}${followers}:`);
   const tweetLines = opportunity.tweet.text.split('\n');
   tweetLines.forEach((line) => {
     logger.info(`  ${line}`);
@@ -225,16 +233,35 @@ export async function replyCommand(options: ReplyOptions): Promise<void> {
     logger.section('[3/4] Finding reply opportunities...');
 
     const maxTweets = options.count || 10;
-    logger.info(`Fetching ${maxTweets} tweets from your timeline...`);
+    const apiTier = config.x?.apiTier || 'free';
+    const includeMetrics = apiTier === 'basic';
 
-    const tweets = await apiService.getHomeTimeline(maxTweets);
+    if (includeMetrics) {
+      logger.info(`Fetching ${maxTweets} tweets with metrics (Basic tier)...`);
+    } else {
+      logger.info(`Fetching ${maxTweets} tweets from your timeline...`);
+    }
+
+    let tweets = await apiService.getHomeTimeline(maxTweets, includeMetrics);
 
     if (tweets.length === 0) {
       logger.error('No tweets found in timeline');
       process.exit(1);
     }
 
-    logger.success(`Fetched ${tweets.length} tweets`);
+    // For Basic tier: sort by follower count (descending) and recency
+    if (includeMetrics) {
+      tweets = tweets.sort((a, b) => {
+        // Primary: follower count (higher first)
+        const followerDiff = (b.authorFollowersCount || 0) - (a.authorFollowersCount || 0);
+        if (followerDiff !== 0) return followerDiff;
+        // Secondary: recency (newer first)
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      logger.success(`Fetched ${tweets.length} tweets (sorted by influence & recency)`);
+    } else {
+      logger.success(`Fetched ${tweets.length} tweets`);
+    }
 
     // Load style guide
     const styleGuide = fs.loadPrompt('style.md');

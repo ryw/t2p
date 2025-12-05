@@ -17,6 +17,7 @@ t2p is a CLI tool that processes meeting transcripts, notes, and other written c
 - ✅ **Multiple File Processing** — Batch process all transcripts in one command
 - ✅ **Post Review System** — Review posts interactively and mark as keep/reject
 - ✅ **Typefully Integration** — Stage posts directly to Typefully drafts
+- ✅ **Reply Guy Mode** — Find tweets to reply to and post replies via X API
 
 ## Prerequisites
 
@@ -229,6 +230,74 @@ t2p posts --source "meeting-2024"
 t2p posts --eval
 ```
 
+### `t2p reply`
+
+Find tweets from accounts you follow and generate contextual replies. Posts replies directly via X API.
+
+**Options:**
+- `--count <n>` — Number of tweets to analyze from timeline (default: 10)
+
+**Review actions:**
+- `Enter` — Post the suggested reply
+- `e` — Edit the reply before posting
+- `n` — Skip this tweet
+- `q` — Quit reply session
+
+```bash
+# Find reply opportunities (default: 10 tweets)
+t2p reply
+
+# Analyze more tweets
+t2p reply --count 20
+```
+
+**What it does:**
+1. Authenticates with X API (reuses credentials from `t2p analyze-x`)
+2. Fetches recent tweets from your home timeline
+3. Uses LLM to identify 3-5 best reply opportunities
+4. For each opportunity, generates a contextual reply following your style guide
+5. Shows you the tweet + suggested reply
+6. You choose: post, edit, skip, or quit
+7. Posts approved replies directly via X API
+
+**Reply Style:**
+Replies follow the "Reply Style" section in `prompts/style.md`:
+- Never promotional
+- Add value (insight, wit, helpful info)
+- Match your voice/tone
+- Keep replies concise (1-2 sentences)
+
+**X API Tiers:**
+- **Free tier** (default): Basic timeline fetch, limited to ~15 requests per 15 minutes
+- **Basic tier** ($100/month): Fetches follower counts, sorts by influence & recency
+
+Configure your tier in `.t2prc.json`:
+```json
+{
+  "x": {
+    "clientId": "your-client-id",
+    "apiTier": "basic"
+  }
+}
+```
+
+**Rate Limits:**
+The free tier has strict limits. If you hit 429 errors:
+- Wait 15 minutes and try again
+- Use `--count 10` or less to reduce API calls
+- Consider upgrading to Basic tier for more quota
+
+**Requirements:**
+- Same X API setup as `t2p analyze-x`
+- App must have "Read and Write" permissions (not just "Read")
+- Required scopes: `tweet.read`, `tweet.write`, `users.read`, `offline.access`
+
+If you get 403 errors when posting:
+1. Go to [X Developer Portal](https://developer.x.com/en/portal/dashboard)
+2. Change app permissions to "Read and write"
+3. Delete `.t2p-tokens.json` to force re-auth
+4. Run `t2p reply` again
+
 ### `t2p review`
 
 Interactively review posts one-by-one and decide their fate. Posts are shown sorted by banger score (highest first).
@@ -344,6 +413,8 @@ See [ANTHROPIC_SETUP.md](ANTHROPIC_SETUP.md) for detailed instructions on using 
 | `generation.strategies.autoSelect` | `true` | Auto-select strategies based on content analysis |
 | `generation.strategies.diversityWeight` | `0.7` | Strategy diversity (0.0-1.0, higher = more diverse categories) |
 | `generation.strategies.preferThreadFriendly` | `false` | Prioritize thread-friendly strategies |
+| `x.clientId` | — | X API OAuth 2.0 Client ID |
+| `x.apiTier` | `free` | X API tier: `free` or `basic` (affects reply command features) |
 | `typefully.socialSetId` | `"1"` | Typefully Social Set ID (for multi-account setups) |
 
 ## Project Structure
@@ -1041,6 +1112,7 @@ cat posts.jsonl | jq -r 'select(.metadata.typefullyDraftId) | .metadata.typefull
 - [x] `t2p analyze-x` — Generate style guide from your X posts (X API v2 free tier)
 - [x] `t2p posts` — View and filter generated posts
 - [x] `t2p review` — Interactive post review and staging
+- [x] `t2p reply` — Reply guy mode with X API posting
 - [x] Typefully integration for staging drafts
 - [x] Configurable models and generation settings
 - [x] JSONL output format with full metadata

@@ -1,5 +1,7 @@
 export type LLMProvider = 'ollama' | 'anthropic';
 
+export type XApiTier = 'free' | 'basic';
+
 export interface T2pConfig {
   llm: {
     provider: LLMProvider;
@@ -26,6 +28,7 @@ export interface T2pConfig {
   };
   x?: {
     clientId?: string;
+    apiTier?: XApiTier;
   };
   typefully?: {
     socialSetId?: string;

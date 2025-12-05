@@ -7,6 +7,7 @@ export interface Tweet {
   authorId?: string;
   authorUsername?: string;
   authorName?: string;
+  authorFollowersCount?: number;
 }
 
 export class XApiService {
@@ -68,25 +69,35 @@ export class XApiService {
 
   /**
    * Fetch home timeline (tweets from accounts the user follows)
+   * @param maxResults - Maximum tweets to fetch
+   * @param includeMetrics - If true, fetches follower counts (uses more API quota)
    */
-  async getHomeTimeline(maxResults: number = 50): Promise<Tweet[]> {
+  async getHomeTimeline(maxResults: number = 50, includeMetrics: boolean = false): Promise<Tweet[]> {
     const tweets: Tweet[] = [];
     const limit = Math.min(maxResults, 100);
 
     try {
+      const userFields = includeMetrics
+        ? ['username', 'name', 'public_metrics'] as const
+        : ['username', 'name'] as const;
+
       const timeline = await this.client.v2.homeTimeline({
         max_results: limit,
         'tweet.fields': ['created_at', 'text', 'author_id'],
         expansions: ['author_id'],
-        'user.fields': ['username', 'name'],
+        'user.fields': [...userFields],
         exclude: ['retweets'], // Include replies but not retweets
       });
 
       // Build author lookup map
-      const authorMap = new Map<string, { username: string; name: string }>();
+      const authorMap = new Map<string, { username: string; name: string; followersCount?: number }>();
       if (timeline.includes?.users) {
         for (const user of timeline.includes.users) {
-          authorMap.set(user.id, { username: user.username, name: user.name });
+          authorMap.set(user.id, {
+            username: user.username,
+            name: user.name,
+            followersCount: (user as any).public_metrics?.followers_count,
+          });
         }
       }
 
@@ -99,6 +110,7 @@ export class XApiService {
           authorId: tweet.author_id,
           authorUsername: author?.username,
           authorName: author?.name,
+          authorFollowersCount: author?.followersCount,
         });
 
         if (tweets.length >= maxResults) {
