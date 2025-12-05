@@ -16,6 +16,7 @@ const SYSTEM_TEMPLATE = readFileSync(join(__dirname, '../templates/system.md'), 
 const ANALYSIS_TEMPLATE = readFileSync(join(__dirname, '../templates/analysis.md'), 'utf-8');
 const BANGER_EVAL_TEMPLATE = readFileSync(join(__dirname, '../templates/banger-eval.md'), 'utf-8');
 const CONTENT_ANALYSIS_TEMPLATE = readFileSync(join(__dirname, '../templates/content-analysis.md'), 'utf-8');
+const REPLY_TEMPLATE = readFileSync(join(__dirname, '../templates/reply.md'), 'utf-8');
 const STRATEGIES_TEMPLATE = readFileSync(join(__dirname, '../templates/strategies.json'), 'utf-8');
 
 export async function initCommand(): Promise<void> {
@@ -54,6 +55,9 @@ export async function initCommand(): Promise<void> {
 
     fs.writeFile(join(cwd, 'prompts', 'content-analysis.md'), CONTENT_ANALYSIS_TEMPLATE);
     logger.success('Created file: prompts/content-analysis.md');
+
+    fs.writeFile(join(cwd, 'prompts', 'reply.md'), REPLY_TEMPLATE);
+    logger.success('Created file: prompts/reply.md');
 
     // Create strategies file
     fs.writeFile(join(cwd, 'strategies.json'), STRATEGIES_TEMPLATE);

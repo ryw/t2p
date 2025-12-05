@@ -144,6 +144,7 @@ async function editReply(currentReply: string): Promise<string> {
 }
 
 function buildReplyPrompt(
+  replyTemplate: string,
   styleGuide: string,
   tweets: Tweet[]
 ): string {
@@ -154,43 +155,9 @@ function buildReplyPrompt(
     })
     .join('\n\n');
 
-  return `You are helping identify tweets worth replying to and generating appropriate replies.
-
-## Style Guide for Replies
-${styleGuide}
-
-## Recent Tweets from Timeline
-${tweetsText}
-
-## Task
-Analyze these tweets and identify the BEST 3-5 opportunities for a thoughtful reply.
-For each opportunity, provide:
-1. The tweet number (from the list above)
-2. A suggested reply that follows the style guide
-3. Brief reasoning for why this is a good reply opportunity
-
-Rules for selecting tweets:
-- Look for tweets where you can add genuine value
-- Prefer tweets asking questions, sharing challenges, or discussing topics you have expertise in
-- Skip tweets that are just announcements, memes, or don't invite conversation
-- Never be promotional in replies
-
-Rules for replies:
-- Keep replies concise (1-2 sentences typically)
-- Be helpful, witty, or add a unique perspective
-- Match the conversational tone from the style guide
-- Don't be sycophantic or overly agreeable
-
-Output format (JSON array):
-[
-  {
-    "tweetNumber": 1,
-    "suggestedReply": "Your reply here",
-    "reasoning": "Why this is a good opportunity"
-  }
-]
-
-Return ONLY the JSON array, no other text.`;
+  return replyTemplate
+    .replace('{{STYLE_GUIDE}}', styleGuide)
+    .replace('{{TWEETS}}', tweetsText);
 }
 
 function parseReplyOpportunities(
@@ -296,12 +263,13 @@ export async function replyCommand(options: ReplyOptions): Promise<void> {
       logger.success(`Fetched ${tweets.length} tweets`);
     }
 
-    // Load style guide
+    // Load prompts
     const styleGuide = fs.loadPrompt('style.md');
+    const replyTemplate = fs.loadPrompt('reply.md');
 
     // Generate reply opportunities
     logger.info('Analyzing tweets for reply opportunities...');
-    const prompt = buildReplyPrompt(styleGuide, tweets);
+    const prompt = buildReplyPrompt(replyTemplate, styleGuide, tweets);
     const response = await llm.generate(prompt);
     const opportunities = parseReplyOpportunities(response, tweets);
 
