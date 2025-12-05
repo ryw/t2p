@@ -68,11 +68,16 @@ function displayTweetForReply(opportunity: ReplyOpportunity, index: number, tota
     logger.info(`  ${line}`);
   });
 
-  // Engagement stats
+  // Engagement stats and URL
   const likes = formatCount(opportunity.tweet.likeCount);
   const replies = formatCount(opportunity.tweet.replyCount);
   const retweets = formatCount(opportunity.tweet.retweetCount);
   logger.info(`  ♥ ${likes}  💬 ${replies}  🔁 ${retweets}`);
+
+  const tweetUrl = opportunity.tweet.authorUsername
+    ? `https://x.com/${opportunity.tweet.authorUsername}/status/${opportunity.tweet.id}`
+    : `https://x.com/i/status/${opportunity.tweet.id}`;
+  logger.info(`  ${tweetUrl}`);
 
   logger.blank();
   logger.info('Suggested reply:');
