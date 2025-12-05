@@ -4,6 +4,9 @@ export interface Tweet {
   id: string;
   text: string;
   createdAt: string;
+  authorId?: string;
+  authorUsername?: string;
+  authorName?: string;
 }
 
 export class XApiService {
@@ -61,5 +64,68 @@ export class XApiService {
   async getMyTweets(maxResults: number = 100): Promise<Tweet[]> {
     const user = await this.getMe();
     return this.getUserTweets(user.id, maxResults);
+  }
+
+  /**
+   * Fetch home timeline (tweets from accounts the user follows)
+   */
+  async getHomeTimeline(maxResults: number = 50): Promise<Tweet[]> {
+    const tweets: Tweet[] = [];
+    const limit = Math.min(maxResults, 100);
+
+    try {
+      const timeline = await this.client.v2.homeTimeline({
+        max_results: limit,
+        'tweet.fields': ['created_at', 'text', 'author_id'],
+        expansions: ['author_id'],
+        'user.fields': ['username', 'name'],
+        exclude: ['retweets'], // Include replies but not retweets
+      });
+
+      // Build author lookup map
+      const authorMap = new Map<string, { username: string; name: string }>();
+      if (timeline.includes?.users) {
+        for (const user of timeline.includes.users) {
+          authorMap.set(user.id, { username: user.username, name: user.name });
+        }
+      }
+
+      for await (const tweet of timeline) {
+        const author = tweet.author_id ? authorMap.get(tweet.author_id) : undefined;
+        tweets.push({
+          id: tweet.id,
+          text: tweet.text,
+          createdAt: tweet.created_at || new Date().toISOString(),
+          authorId: tweet.author_id,
+          authorUsername: author?.username,
+          authorName: author?.name,
+        });
+
+        if (tweets.length >= maxResults) {
+          break;
+        }
+      }
+
+      return tweets;
+    } catch (error: any) {
+      throw new Error(`Failed to fetch home timeline: ${error.message || 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Post a reply to a tweet
+   */
+  async postReply(inReplyToTweetId: string, text: string): Promise<Tweet> {
+    try {
+      const result = await this.client.v2.reply(text, inReplyToTweetId);
+
+      return {
+        id: result.data.id,
+        text: result.data.text,
+        createdAt: new Date().toISOString(),
+      };
+    } catch (error: any) {
+      throw new Error(`Failed to post reply: ${error.message || 'Unknown error'}`);
+    }
   }
 }

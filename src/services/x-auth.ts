@@ -6,7 +6,7 @@ import { join } from 'path';
 import type { XTokens, XTokensStore } from '../types/x-tokens.js';
 
 const REDIRECT_URI = 'http://127.0.0.1:3000/callback';
-const SCOPES = ['tweet.read', 'users.read', 'offline.access'];
+const SCOPES = ['tweet.read', 'tweet.write', 'users.read', 'offline.access'];
 
 export class XAuthService {
   private cwd: string;

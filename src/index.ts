@@ -13,6 +13,7 @@ import { workCommand } from './commands/work.js';
 import { postsCommand } from './commands/posts.js';
 import { reviewCommand } from './commands/review.js';
 import { analyzeXCommand } from './commands/analyze-x.js';
+import { replyCommand } from './commands/reply.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -69,5 +70,11 @@ program
   .option('--overwrite', 'Overwrite existing style-from-analysis.md without prompting')
   .option('--setup', 'Reconfigure X API credentials')
   .action(analyzeXCommand);
+
+program
+  .command('reply')
+  .description('Find tweets to reply to and post replies via X API')
+  .option('--count <n>', 'Number of tweets to analyze from timeline', parseInt, 25)
+  .action(replyCommand);
 
 program.parse();
