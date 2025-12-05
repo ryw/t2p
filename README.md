@@ -15,7 +15,8 @@ t2p is a CLI tool that processes meeting transcripts, notes, and other written c
 - ✅ **X Post Analysis** — Auto-generate style guides from your X (Twitter) posts
 - ✅ **JSONL Output** — Generated posts stored in an append-only format for easy tracking
 - ✅ **Multiple File Processing** — Batch process all transcripts in one command
-- ⏳ **Typefully Integration** — Stage posts directly to Typefully drafts (coming soon)
+- ✅ **Post Review System** — Review posts interactively and mark as keep/reject
+- ✅ **Typefully Integration** — Stage posts directly to Typefully drafts
 
 ## Prerequisites
 
@@ -59,8 +60,9 @@ pbpaste > input/meeting-notes.txt
 # 4. Generate posts
 t2p work
 
-# 5. Stage posts to Typefully (coming soon)
-t2p stage 5
+# 5. Review and stage posts to Typefully
+t2p posts             # View generated posts
+t2p review            # Review posts interactively and stage to Typefully
 ```
 
 ## Commands
@@ -196,14 +198,73 @@ t2p analyze-x --setup
 - Can analyze once per month with free tier
 - Upgrade to Basic ($200/month) for 10,000 reads if needed
 
-### `t2p stage <n>` *(coming soon)*
+### `t2p posts`
 
-Stage the next `n` draft posts to Typefully.
+View recently generated posts in a human-readable format with filtering options.
+
+**Options:**
+- `-n, --count <number>` — Number of posts to show (default: 10)
+- `--strategy <name>` — Filter by strategy name or ID
+- `--min-score <score>` — Show posts with banger score >= N
+- `--source <text>` — Filter by source file name
+- `--eval` — Evaluate posts that are missing banger scores
 
 ```bash
-# Stage 5 posts as Typefully drafts
-t2p stage 5
+# View last 10 posts
+t2p posts
+
+# View last 20 posts
+t2p posts -n 20
+
+# Filter by strategy
+t2p posts --strategy "personal-story"
+
+# Show only high-quality posts
+t2p posts --min-score 70
+
+# Show posts from specific source
+t2p posts --source "meeting-2024"
+
+# Evaluate posts missing banger scores
+t2p posts --eval
 ```
+
+### `t2p review`
+
+Interactively review posts one-by-one and decide their fate. Posts are shown sorted by banger score (highest first).
+
+**Options:**
+- `--min-score <score>` — Only review posts with score >= N
+
+**Review actions:**
+- `s` — Stage to Typefully (creates draft)
+- `Enter` — Keep for later (status: keep)
+- `n` — Reject (status: rejected)
+- `q` — Quit review session
+
+```bash
+# Review all new posts
+t2p review
+
+# Only review high-quality posts
+t2p review --min-score 70
+```
+
+**What it does:**
+1. Loads all posts with status `new` or `keep`
+2. Sorts by banger score (highest first)
+3. Shows each post with score and strategy
+4. Prompts for action: stage, keep, or reject
+5. If staging, creates a Typefully draft and saves the draft ID
+6. Updates post status immediately after each decision
+7. Continues until all posts reviewed or you quit
+
+**Post statuses:**
+- `new` — Freshly generated, not yet reviewed
+- `keep` — Marked as good, saved for future use
+- `staged` — Sent to Typefully as a draft
+- `rejected` — Marked as low quality, filtered out
+- `published` — Reserved for future use
 
 ## Configuration
 
@@ -252,13 +313,17 @@ Configuration is stored in `.t2prc.json`:
       "diversityWeight": 0.7,
       "preferThreadFriendly": false
     }
+  },
+  "typefully": {
+    "socialSetId": "1"
   }
 }
 ```
 
-Set your Anthropic API key in a `.env` file:
+Set your API keys in a `.env` file:
 ```bash
 ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
+TYPEFULLY_API_KEY=your-typefully-api-key-here
 ```
 
 See [ANTHROPIC_SETUP.md](ANTHROPIC_SETUP.md) for detailed instructions on using Claude.
@@ -279,6 +344,7 @@ See [ANTHROPIC_SETUP.md](ANTHROPIC_SETUP.md) for detailed instructions on using 
 | `generation.strategies.autoSelect` | `true` | Auto-select strategies based on content analysis |
 | `generation.strategies.diversityWeight` | `0.7` | Strategy diversity (0.0-1.0, higher = more diverse categories) |
 | `generation.strategies.preferThreadFriendly` | `false` | Prioritize thread-friendly strategies |
+| `typefully.socialSetId` | `"1"` | Typefully Social Set ID (for multi-account setups) |
 
 ## Project Structure
 
@@ -347,8 +413,9 @@ Each post includes:
 - **metadata.strategy** — Content strategy used (id, name, category)
 - **metadata.bangerScore** — Viral potential score (1-99)
 - **metadata.bangerEvaluation** — Detailed scoring breakdown
+- **metadata.typefullyDraftId** — Typefully draft ID (if staged)
 - **timestamp** — When the post was generated
-- **status** — `draft`, `staged`, or `published`
+- **status** — `new`, `keep`, `staged`, `rejected`, or `published`
 
 ### Banger Score
 
@@ -356,11 +423,11 @@ Each generated post is automatically evaluated for its viral potential ("banger"
 
 | Score Range | Potential |
 |-------------|-----------|
-| 1-20 | Low - unlikely to gain traction |
-| 21-40 | Below average - limited reach |
-| 41-60 | Average - decent engagement |
-| 61-80 | High - strong engagement likely |
-| 81-99 | Exceptional - viral potential |
+| 1-29 | Low - unlikely to gain traction |
+| 30-49 | Below average - limited reach |
+| 50-69 | Average - decent engagement |
+| 70-84 | High - strong engagement likely |
+| 85-99 | Exceptional - viral potential |
 
 The score is based on 7 key factors:
 1. **Hook Strength** (20 pts) - Scroll-stopping opening, curiosity gaps
@@ -575,6 +642,9 @@ cat posts.jsonl | jq -r '.metadata.strategy.category' | sort | uniq -c
 
 # Find your best-performing strategy
 cat posts.jsonl | jq -r 'select(.metadata.bangerScore > 70) | .metadata.strategy.name' | sort | uniq -c | sort -rn
+
+# View posts by status
+cat posts.jsonl | jq -r '.status' | sort | uniq -c
 ```
 
 ## Getting Transcripts from Granola
@@ -641,9 +711,12 @@ echo "Today I learned..." > input/quick-thoughts.md
 t2p work
 
 # 5. Review generated posts
-cat posts.jsonl | jq '.content' -r
+t2p posts
 
-# 6. Process more content later
+# 6. Review and stage to Typefully
+t2p review --min-score 70
+
+# 7. Process more content later
 cp ~/new-transcript.txt input/
 t2p work  # Appends new posts to posts.jsonl
 ```
@@ -895,21 +968,89 @@ src/
 
 This project uses [bd (beads)](https://github.com/steveyegge/beads) for issue tracking. See `AGENTS.md` for AI agent workflow guidelines.
 
+## Typefully Integration
+
+t2p integrates with [Typefully](https://typefully.com/) to help you stage posts directly as drafts. This streamlines your workflow from transcript → posts → published content.
+
+### Setup
+
+1. **Get your Typefully API key:**
+   - Log in to Typefully
+   - Go to Settings > Integrations
+   - Create an API key
+
+2. **Add to your `.env` file:**
+   ```bash
+   TYPEFULLY_API_KEY=your-api-key-here
+   ```
+
+3. **(Optional) Configure Social Set ID:**
+   If you have multiple social accounts in Typefully, specify which one to post to:
+   ```json
+   {
+     "typefully": {
+       "socialSetId": "1"
+     }
+   }
+   ```
+   The default is `"1"` (your first connected account). Check Typefully's API docs to find your Social Set IDs.
+
+### Usage
+
+**Interactive review and staging:**
+```bash
+# Review posts and stage the best ones
+t2p review --min-score 70
+```
+
+During review:
+- Press `s` to stage a post to Typefully
+- The post is created as a draft in your Typefully account
+- The draft URL is displayed for quick access
+- Post status is updated to `staged` with the draft ID saved
+
+**Filter staged posts:**
+```bash
+# See all staged posts
+cat posts.jsonl | jq 'select(.status == "staged")'
+
+# Get Typefully draft URLs
+cat posts.jsonl | jq -r 'select(.metadata.typefullyDraftId) | .metadata.typefullyDraftId'
+```
+
+### Features
+
+- ✅ Creates drafts for X/Twitter
+- ✅ Saves Typefully draft ID and share URL
+- ✅ Updates post status automatically
+- ✅ Works with multi-account setups via `socialSetId`
+- ✅ Handles errors gracefully (reverts status on failure)
+
+### Notes
+
+- Posts are created as **drafts**, not published immediately
+- You can review and edit drafts in Typefully before publishing
+- Requires Typefully Pro plan for API access
+- Currently supports X/Twitter only (LinkedIn coming soon)
+
 ## Roadmap
 
 **Core Features (v0.1.0)**
 - [x] `t2p init` — Initialize project structure
 - [x] `t2p work` — Process transcripts into posts with Ollama
 - [x] `t2p analyze-x` — Generate style guide from your X posts (X API v2 free tier)
+- [x] `t2p posts` — View and filter generated posts
+- [x] `t2p review` — Interactive post review and staging
+- [x] Typefully integration for staging drafts
 - [x] Configurable models and generation settings
 - [x] JSONL output format with full metadata
 
 **Planned Features**
-- [ ] `t2p stage <n>` — Typefully integration for staging posts
 - [ ] `t2p analyze` — Success metrics analysis (X Basic API, $200/mo)
 - [ ] News-aware post generation (incorporate trending topics)
-- [ ] LinkedIn support
+- [ ] LinkedIn support in Typefully integration
 - [ ] Multiple output format support (CSV, Markdown)
+- [ ] Bulk staging with `t2p stage <n>` command
 
 ## License
 
