@@ -224,7 +224,7 @@ export async function replyCommand(options: ReplyOptions): Promise<void> {
     // Step 3: Fetch timeline and generate replies
     logger.section('[3/4] Finding reply opportunities...');
 
-    const maxTweets = options.count || 25;
+    const maxTweets = options.count || 10;
     logger.info(`Fetching ${maxTweets} tweets from your timeline...`);
 
     const tweets = await apiService.getHomeTimeline(maxTweets);
