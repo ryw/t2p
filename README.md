@@ -76,16 +76,16 @@ Initialize a new ship project in the current directory. Creates:
 
 | Path | Description |
 |------|-------------|
+| `.shippostrc.json` | Project configuration file |
 | `input/` | Directory for transcripts, notes, and source content |
+| `prompts/analysis.md` | Style analysis prompt for X posts (advanced) |
+| `prompts/banger-eval.md` | Viral potential scoring criteria (advanced) |
+| `prompts/content-analysis.md` | Content strategy selection prompt (advanced) |
+| `prompts/reply.md` | Reply opportunity analysis prompt (advanced) |
 | `prompts/style.md` | Your posting style, brand voice, and tone guidelines |
+| `prompts/system.md` | System prompt for post generation (advanced) |
 | `prompts/work.md` | Instructions for how posts should be generated |
 | `strategies.json` | **User-editable** content strategies (64 default strategies) |
-| `prompts/system.md` | System prompt for post generation (advanced) |
-| `prompts/analysis.md` | Style analysis prompt for X posts (advanced) |
-| `prompts/content-analysis.md` | Content strategy selection prompt (advanced) |
-| `prompts/banger-eval.md` | Viral potential scoring criteria (advanced) |
-| `prompts/reply.md` | Reply opportunity analysis prompt (advanced) |
-| `.shiprc.json` | Project configuration file |
 
 ### `ship work`
 
