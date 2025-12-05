@@ -234,15 +234,22 @@ export async function replyCommand(options: ReplyOptions): Promise<void> {
     const user = await apiService.getMe();
     logger.success(`Authenticated as @${user.username}`);
 
-    // Step 3: Fetch timeline and generate replies
-    logger.section('[3/4] Finding reply opportunities...');
-
-    const maxTweets = options.count || 10;
     const apiTier = config.x?.apiTier || 'free';
     const includeMetrics = apiTier === 'basic';
 
     if (includeMetrics) {
-      logger.info(`Fetching ${maxTweets} tweets with metrics (Basic tier)...`);
+      logger.info('BASIC X MODE: Tweets sorted by influence, with engagement metrics');
+    } else {
+      logger.info('FREE X MODE: Chronological timeline without metrics');
+    }
+
+    // Step 3: Fetch timeline and generate replies
+    logger.section('[3/4] Finding reply opportunities...');
+
+    const maxTweets = options.count || 10;
+
+    if (includeMetrics) {
+      logger.info(`Fetching ${maxTweets} tweets with metrics...`);
     } else {
       logger.info(`Fetching ${maxTweets} tweets from your timeline...`);
     }
