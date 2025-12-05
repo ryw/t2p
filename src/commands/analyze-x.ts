@@ -5,7 +5,7 @@ import { OllamaService } from '../services/ollama.js';
 import { XAuthService } from '../services/x-auth.js';
 import { XApiService } from '../services/x-api.js';
 import { logger } from '../utils/logger.js';
-import { isT2pProject } from '../utils/validation.js';
+import { isShippostProject } from '../utils/validation.js';
 import { NotInitializedError } from '../utils/errors.js';
 import { buildStyleAnalysisPrompt, parseStyleGuide } from '../utils/style-analysis.js';
 
@@ -22,7 +22,7 @@ export async function analyzeXCommand(options: AnalyzeXOptions): Promise<void> {
     // Step 1: Validate environment
     logger.section('[1/5] Checking environment...');
 
-    if (!isT2pProject(cwd)) {
+    if (!isShippostProject(cwd)) {
       throw new NotInitializedError();
     }
 
@@ -62,7 +62,7 @@ export async function analyzeXCommand(options: AnalyzeXOptions): Promise<void> {
       // Save to config
       config.x = { clientId };
       fs.saveConfig(config);
-      logger.success('Configuration saved to .t2prc.json');
+      logger.success('Configuration saved to .shippostrc.json');
       logger.blank();
     } else {
       logger.success('Using existing X API configuration');
@@ -136,7 +136,7 @@ export async function analyzeXCommand(options: AnalyzeXOptions): Promise<void> {
     logger.info('- Review prompts/style-from-analysis.md');
     logger.info('- Copy/merge insights into prompts/style.md if desired');
     logger.info('- Add transcripts to input/');
-    logger.info('- Run: t2p work');
+    logger.info('- Run: ship work');
   } catch (error) {
     logger.blank();
     logger.error((error as Error).message);

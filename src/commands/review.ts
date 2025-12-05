@@ -2,7 +2,7 @@ import { createInterface } from 'readline';
 import { FileSystemService } from '../services/file-system.js';
 import { TypefullyService } from '../services/typefully.js';
 import { logger } from '../utils/logger.js';
-import { isT2pProject } from '../utils/validation.js';
+import { isShippostProject } from '../utils/validation.js';
 import { NotInitializedError } from '../utils/errors.js';
 import type { Post } from '../types/post.js';
 
@@ -68,7 +68,7 @@ export async function reviewCommand(options: ReviewOptions): Promise<void> {
 
   try {
     // Check if initialized
-    if (!isT2pProject(cwd)) {
+    if (!isShippostProject(cwd)) {
       throw new NotInitializedError();
     }
 
@@ -79,7 +79,7 @@ export async function reviewCommand(options: ReviewOptions): Promise<void> {
     const allPosts = fs.readPosts();
 
     if (allPosts.length === 0) {
-      logger.info('No posts found. Run `t2p work` to generate posts.');
+      logger.info('No posts found. Run `ship work` to generate posts.');
       return;
     }
 

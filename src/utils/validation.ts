@@ -1,13 +1,13 @@
 import { existsSync } from 'fs';
 import { join } from 'path';
 
-export function isT2pProject(cwd: string = process.cwd()): boolean {
+export function isShippostProject(cwd: string = process.cwd()): boolean {
   const requiredPaths = [
     join(cwd, 'input'),
     join(cwd, 'prompts'),
     join(cwd, 'prompts', 'style.md'),
     join(cwd, 'prompts', 'work.md'),
-    join(cwd, '.t2prc.json'),
+    join(cwd, '.shippostrc.json'),
   ];
 
   return requiredPaths.every((path) => existsSync(path));

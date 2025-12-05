@@ -1,7 +1,7 @@
 # Posting Style Guide - Technical Founder
 
 <!--
-  Contributed by: t2p team
+  Contributed by: ship team
   Target audience: Technical founders and builders
   Focus: Product development, startups, honest takes on building
   Style: Casual but insightful, no hype

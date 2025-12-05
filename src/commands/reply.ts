@@ -4,7 +4,7 @@ import { XAuthService } from '../services/x-auth.js';
 import { XApiService, Tweet } from '../services/x-api.js';
 import { createLLMService } from '../services/llm-factory.js';
 import { logger } from '../utils/logger.js';
-import { isT2pProject } from '../utils/validation.js';
+import { isShippostProject } from '../utils/validation.js';
 import { NotInitializedError } from '../utils/errors.js';
 import { readlineSync } from '../utils/readline.js';
 
@@ -201,7 +201,7 @@ export async function replyCommand(options: ReplyOptions): Promise<void> {
     // Step 1: Validate environment
     logger.section('[1/4] Checking environment...');
 
-    if (!isT2pProject(cwd)) {
+    if (!isShippostProject(cwd)) {
       throw new NotInitializedError();
     }
 
@@ -218,7 +218,7 @@ export async function replyCommand(options: ReplyOptions): Promise<void> {
 
     const clientId = config.x?.clientId;
     if (!clientId) {
-      logger.error('X API not configured. Run `t2p analyze-x --setup` first.');
+      logger.error('X API not configured. Run `ship analyze-x --setup` first.');
       process.exit(1);
     }
 

@@ -1,6 +1,6 @@
 import { FileSystemService } from '../services/file-system.js';
 import { logger } from '../utils/logger.js';
-import { isT2pProject } from '../utils/validation.js';
+import { isShippostProject } from '../utils/validation.js';
 import { NotInitializedError } from '../utils/errors.js';
 import { createLLMService } from '../services/llm-factory.js';
 import { buildBangerEvalPrompt, parseBangerEval } from '../utils/banger-eval.js';
@@ -95,7 +95,7 @@ async function evaluateMissingScores(
   try {
     bangerEvalTemplate = fs.loadPrompt('banger-eval.md');
   } catch {
-    logger.error('Missing prompts/banger-eval.md - run t2p init to create it');
+    logger.error('Missing prompts/banger-eval.md - run ship init to create it');
     return;
   }
 
@@ -161,7 +161,7 @@ export async function postsCommand(options: PostsOptions): Promise<void> {
 
   try {
     // Check if initialized
-    if (!isT2pProject(cwd)) {
+    if (!isShippostProject(cwd)) {
       throw new NotInitializedError();
     }
 
@@ -169,7 +169,7 @@ export async function postsCommand(options: PostsOptions): Promise<void> {
     let posts = fs.readPosts();
 
     if (posts.length === 0) {
-      logger.info('No posts found. Run `t2p work` to generate posts.');
+      logger.info('No posts found. Run `ship work` to generate posts.');
       return;
     }
 
@@ -190,7 +190,7 @@ export async function postsCommand(options: PostsOptions): Promise<void> {
 
       if (posts.length === 0) {
         logger.error(`No posts found with strategy: ${strategy}`);
-        logger.info('Run `t2p work --list-strategies` to see available strategies');
+        logger.info('Run `ship work --list-strategies` to see available strategies');
         return;
       }
     }

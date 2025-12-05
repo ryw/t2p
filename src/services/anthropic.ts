@@ -62,7 +62,7 @@ export class AnthropicService implements LLMService {
           errorMsg += `  - Current key starts with: ${this.apiKey.substring(0, 15)}...\n`;
         } else if (errorStr.includes('model')) {
           errorMsg += `✗ Model not found: ${this.getModelName()}\n`;
-          errorMsg += '  - Check your model name in .t2prc.json\n';
+          errorMsg += '  - Check your model name in .shippostrc.json\n';
         } else if (errorStr.includes('network') || errorStr.includes('ENOTFOUND')) {
           errorMsg += '✗ Network error: Cannot reach Anthropic API\n';
           errorMsg += '  - Check your internet connection\n';

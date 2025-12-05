@@ -16,7 +16,7 @@ export class FileSystemService {
   }
 
   loadConfig(): T2pConfig {
-    const configPath = join(this.cwd, '.t2prc.json');
+    const configPath = join(this.cwd, '.shippostrc.json');
 
     if (!existsSync(configPath)) {
       throw new NotInitializedError();
@@ -52,7 +52,7 @@ export class FileSystemService {
   }
 
   saveConfig(config: T2pConfig): void {
-    const configPath = join(this.cwd, '.t2prc.json');
+    const configPath = join(this.cwd, '.shippostrc.json');
 
     try {
       writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
@@ -173,7 +173,7 @@ export class FileSystemService {
   }
 
   loadState(): T2pState {
-    const statePath = join(this.cwd, '.t2p-state.json');
+    const statePath = join(this.cwd, '.shippost-state.json');
 
     if (!existsSync(statePath)) {
       return { processedFiles: {} };
@@ -188,7 +188,7 @@ export class FileSystemService {
   }
 
   saveState(state: T2pState): void {
-    const statePath = join(this.cwd, '.t2p-state.json');
+    const statePath = join(this.cwd, '.shippost-state.json');
 
     try {
       writeFileSync(statePath, JSON.stringify(state, null, 2), 'utf-8');

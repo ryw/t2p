@@ -1,11 +1,11 @@
 {
-	"name": "t2p",
+	"name": "shippost",
 	"version": "0.1.0",
-	"description": "transcripts → posts: Process meeting transcripts and other notes into social media post drafts",
+	"description": "Ship posts: Transform meeting transcripts and notes into social media post drafts",
 	"main": "dist/index.js",
 	"type": "module",
 	"bin": {
-		"t2p": "./dist/index.js"
+		"ship": "./dist/index.js"
 	},
 	"scripts": {
 		"build": "tsc && npm run copy-templates",

@@ -5,7 +5,7 @@ import { createLLMService } from '../services/llm-factory.js';
 import { ContentAnalyzer } from '../services/content-analyzer.js';
 import { StrategySelector } from '../services/strategy-selector.js';
 import { logger } from '../utils/logger.js';
-import { isT2pProject } from '../utils/validation.js';
+import { isShippostProject } from '../utils/validation.js';
 import { NotInitializedError } from '../utils/errors.js';
 import { buildBangerEvalPrompt, parseBangerEval } from '../utils/banger-eval.js';
 import type { PostGenerationResult } from '../types/post.js';
@@ -127,7 +127,7 @@ function listStrategiesCommand(fs: FileSystemService, options: WorkOptions): voi
 
   if (userStrategies.length === 0) {
     logger.error('No strategies found. Create strategies.json in your project directory.');
-    logger.info('Run: t2p init  # to create default strategies file');
+    logger.info('Run: ship init  # to create default strategies file');
     process.exit(1);
   }
 
@@ -166,9 +166,9 @@ function listStrategiesCommand(fs: FileSystemService, options: WorkOptions): voi
 
   logger.blank();
   logger.info('Usage:');
-  logger.info('  t2p work --strategy <id>           # Use specific strategy');
-  logger.info('  t2p work --strategies <id1,id2>    # Use multiple strategies');
-  logger.info('  t2p work                            # Auto-select strategies');
+  logger.info('  ship work --strategy <id>           # Use specific strategy');
+  logger.info('  ship work --strategies <id1,id2>    # Use multiple strategies');
+  logger.info('  ship work                            # Auto-select strategies');
   logger.blank();
 }
 
@@ -187,7 +187,7 @@ export async function workCommand(options: WorkOptions): Promise<void> {
     // Step 1: Validate environment
     logger.section('[1/3] Checking environment...');
 
-    if (!isT2pProject(cwd)) {
+    if (!isShippostProject(cwd)) {
       throw new NotInitializedError();
     }
 
@@ -556,7 +556,7 @@ export async function workCommand(options: WorkOptions): Promise<void> {
     logger.blank();
     logger.info('Next steps:');
     logger.info('- Review posts in posts.jsonl');
-    logger.info('- Future: Run `t2p stage` to publish (coming soon)');
+    logger.info('- Future: Run `ship stage` to publish (coming soon)');
   }
   } catch (error) {
     logger.blank();

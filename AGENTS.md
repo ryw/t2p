@@ -142,7 +142,7 @@ history/
 **When adding new features:**
 - If a feature uses an LLM prompt, create a new file in `prompts/`
 - Load the prompt from the file, never hardcode it
-- Update `t2p init` to create the new prompt file
+- Update `ship init` to create the new prompt file
 - Update FileSystemService's `loadPrompt()` type signature
 
 ### Important Rules

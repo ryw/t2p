@@ -16,7 +16,7 @@ export class XAuthService {
   constructor(cwd: string, clientId: string) {
     this.cwd = cwd;
     this.clientId = clientId;
-    this.tokensPath = join(cwd, '.t2p-tokens.json');
+    this.tokensPath = join(cwd, '.shippost-tokens.json');
   }
 
   /**

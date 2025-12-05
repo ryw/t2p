@@ -24,13 +24,13 @@ const packageJson = JSON.parse(
 const program = new Command();
 
 program
-  .name('t2p')
-  .description('Process meeting transcripts and other notes into social media post drafts')
+  .name('ship')
+  .description('Ship posts: Transform meeting transcripts and notes into social media post drafts')
   .version(packageJson.version);
 
 program
   .command('init')
-  .description('Initialize a new t2p project in the current directory')
+  .description('Initialize a new shippost project in the current directory')
   .action(initCommand);
 
 program

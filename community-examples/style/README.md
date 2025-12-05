@@ -1,6 +1,6 @@
 # Community Style Examples
 
-This directory contains style.md examples contributed by the t2p community. Use these as inspiration for crafting your own unique voice!
+This directory contains style.md examples contributed by the ship community. Use these as inspiration for crafting your own unique voice!
 
 ## Why Share Your Style?
 

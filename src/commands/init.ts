@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import { FileSystemService } from '../services/file-system.js';
 import { DEFAULT_CONFIG } from '../types/config.js';
 import { logger } from '../utils/logger.js';
-import { isT2pProject } from '../utils/validation.js';
+import { isShippostProject } from '../utils/validation.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,8 +24,8 @@ export async function initCommand(): Promise<void> {
   const fs = new FileSystemService(cwd);
 
   // Check if already initialized
-  if (isT2pProject(cwd)) {
-    logger.error('Already initialized! This directory is already a t2p project.');
+  if (isShippostProject(cwd)) {
+    logger.error('Already initialized! This directory is already a shippost project.');
     process.exit(1);
   }
 
@@ -69,23 +69,23 @@ export async function initCommand(): Promise<void> {
 
     // Create default config
     fs.saveConfig(DEFAULT_CONFIG);
-    logger.success('Created configuration: .t2prc.json');
+    logger.success('Created configuration: .shippostrc.json');
 
     // Success message
     logger.blank();
-    logger.info('t2p initialized successfully!');
+    logger.info('Shippost initialized successfully!');
     logger.blank();
     logger.info('Next steps:');
-    logger.info('1. Configure your LLM provider in .t2prc.json');
+    logger.info('1. Configure your LLM provider in .shippostrc.json');
     logger.info('   - Default is Ollama (local). To use Anthropic (Claude):');
-    logger.info('     a. Set "llm.provider" to "anthropic" in .t2prc.json');
+    logger.info('     a. Set "llm.provider" to "anthropic" in .shippostrc.json');
     logger.info('     b. Add ANTHROPIC_API_KEY to .env file (or export as env var)');
     logger.info('2. Edit prompts/style.md to define your posting style');
     logger.info('3. Edit prompts/work.md to customize post generation');
     logger.info('4. (Optional) Edit strategies.json to customize content strategies');
     logger.info('5. (Optional) Edit prompts/system.md, prompts/analysis.md, prompts/content-analysis.md, and prompts/banger-eval.md for advanced customization');
     logger.info('6. Add transcript files to input/');
-    logger.info('7. Run: t2p work');
+    logger.info('7. Run: ship work');
   } catch (error) {
     logger.error(`Initialization failed: ${(error as Error).message}`);
     process.exit(1);

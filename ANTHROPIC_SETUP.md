@@ -1,6 +1,6 @@
-# Using Anthropic (Claude) with t2p
+# Using Anthropic (Claude) with ship
 
-This guide explains how to configure t2p to use Anthropic's Claude models instead of local Ollama.
+This guide explains how to configure ship to use Anthropic's Claude models instead of local Ollama.
 
 ## Prerequisites
 
@@ -10,7 +10,7 @@ This guide explains how to configure t2p to use Anthropic's Claude models instea
 
 ### 1. Configure the Provider
 
-Edit your `.t2prc.json` file and change the provider to `anthropic`:
+Edit your `.shiprc.json` file and change the provider to `anthropic`:
 
 ```json
 {
@@ -52,22 +52,22 @@ export ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
 
 ## Usage
 
-Once configured, use t2p normally:
+Once configured, use ship normally:
 
 ```bash
 # Generate posts
-t2p work
+ship work
 
 # Override model
-t2p work --model claude-3-opus-20240229
+ship work --model claude-3-opus-20240229
 
 # Check available strategies
-t2p work --list-strategies
+ship work --list-strategies
 ```
 
 ## Configuration Options
 
-In `.t2prc.json`:
+In `.shiprc.json`:
 
 ```json
 {
@@ -91,7 +91,7 @@ In `.t2prc.json`:
 
 ## Switching Back to Ollama
 
-Edit `.t2prc.json` and change the provider back:
+Edit `.shiprc.json` and change the provider back:
 
 ```json
 {

@@ -1,10 +1,12 @@
-# t2p
+# shippost
 
-> **transcripts → posts**: Transform meeting transcripts and other notes into social media post drafts using local LLMs or cloud AI.
+> **Ship posts**: Transform meeting transcripts and notes into social media post drafts using local LLMs or cloud AI.
 
 ## Overview
 
-t2p is a CLI tool that processes meeting transcripts, notes, and other written content into social media post ideas using local LLMs (Ollama) or cloud-based AI (Anthropic Claude). Keep your content pipeline local and private with Ollama, or leverage Claude's powerful language models for enhanced quality.
+shippost is a CLI tool that processes meeting transcripts, notes, and other written content into social media post ideas using local LLMs (Ollama) or cloud-based AI (Anthropic Claude). Keep your content pipeline local and private with Ollama, or leverage Claude's powerful language models for enhanced quality.
+
+**CLI command:** `ship`
 
 ## Features
 
@@ -31,7 +33,7 @@ t2p is a CLI tool that processes meeting transcripts, notes, and other written c
 ```bash
 # Clone the repository
 git clone <repo-url>
-cd t2p
+cd shippost
 
 # Install dependencies
 npm install
@@ -46,8 +48,8 @@ npm link
 ## Quick Start
 
 ```bash
-# 1. Initialize a new t2p project
-t2p init
+# 1. Initialize a new ship project
+ship init
 
 # 2. Add your transcripts to the input/ directory
 cp ~/meeting-notes.txt input/
@@ -59,18 +61,18 @@ pbpaste > input/meeting-notes.txt
 #    Edit prompts/work.md for generation instructions
 
 # 4. Generate posts
-t2p work
+ship work
 
 # 5. Review and stage posts to Typefully
-t2p posts             # View generated posts
-t2p review            # Review posts interactively and stage to Typefully
+ship posts             # View generated posts
+ship review            # Review posts interactively and stage to Typefully
 ```
 
 ## Commands
 
-### `t2p init`
+### `ship init`
 
-Initialize a new t2p project in the current directory. Creates:
+Initialize a new ship project in the current directory. Creates:
 
 | Path | Description |
 |------|-------------|
@@ -83,9 +85,9 @@ Initialize a new t2p project in the current directory. Creates:
 | `prompts/content-analysis.md` | Content strategy selection prompt (advanced) |
 | `prompts/banger-eval.md` | Viral potential scoring criteria (advanced) |
 | `prompts/reply.md` | Reply opportunity analysis prompt (advanced) |
-| `.t2prc.json` | Project configuration file |
+| `.shiprc.json` | Project configuration file |
 
-### `t2p work`
+### `ship work`
 
 Process all files in `input/` and generate new post ideas. Posts are appended to `posts.jsonl`.
 
@@ -102,34 +104,34 @@ Process all files in `input/` and generate new post ideas. Posts are appended to
 
 ```bash
 # Use default settings (auto-selects 8 diverse strategies)
-t2p work
+ship work
 
 # List all available content strategies
-t2p work --list-strategies
+ship work --list-strategies
 
 # List strategies in a specific category
-t2p work --list-strategies --category educational
+ship work --list-strategies --category educational
 
 # Use a specific strategy for all posts
-t2p work --strategy bold-observation
+ship work --strategy bold-observation
 
 # Use multiple specific strategies
-t2p work --strategies "personal-story,how-to-guide,contrarian-take"
+ship work --strategies "personal-story,how-to-guide,contrarian-take"
 
 # Generate more posts per file
-t2p work --count 12
+ship work --count 12
 
 # Use legacy mode (no strategies)
-t2p work --no-strategies
+ship work --no-strategies
 
 # Use a specific model with verbose output
-t2p work --model llama3.1 --verbose
+ship work --model llama3.1 --verbose
 
 # Force reprocessing with custom strategy
-t2p work --force --strategy thread-lesson
+ship work --force --strategy thread-lesson
 
 # Combine options
-t2p work --model llama2 --count 10 --verbose
+ship work --model llama2 --count 10 --verbose
 ```
 
 **What it does:**
@@ -139,16 +141,16 @@ t2p work --model llama2 --count 10 --verbose
 4. **Skips files that have already been processed** (unless `--force` is used)
 5. Processes each file through Ollama
 6. Parses generated posts and saves to `posts.jsonl`
-7. Tracks processed files in `.t2p-state.json` to prevent duplicates
+7. Tracks processed files in `.ship-state.json` to prevent duplicates
 8. Displays summary with file counts and any errors
 
 **File Tracking:**
-t2p automatically tracks which files have been processed to prevent generating duplicate posts. Files are considered "processed" until they are modified. This means:
-- Running `t2p work` multiple times will only process new or modified files
+ship automatically tracks which files have been processed to prevent generating duplicate posts. Files are considered "processed" until they are modified. This means:
+- Running `ship work` multiple times will only process new or modified files
 - Use `--force` to ignore tracking and reprocess all files
-- The tracking state is stored in `.t2p-state.json` (not committed to git)
+- The tracking state is stored in `.ship-state.json` (not committed to git)
 
-### `t2p analyze-x`
+### `ship analyze-x`
 
 Generate a personalized style guide by analyzing your X (Twitter) posts. Uses X API v2 (free tier) to fetch your recent tweets and Ollama to analyze your writing patterns.
 
@@ -160,16 +162,16 @@ Generate a personalized style guide by analyzing your X (Twitter) posts. Uses X 
 ```bash
 # First time setup (will prompt for X API credentials)
 # Analyzes 33 tweets by default
-t2p analyze-x
+ship analyze-x
 
 # Fetch more tweets for deeper analysis
-t2p analyze-x --count 100
+ship analyze-x --count 100
 
 # Overwrite existing style guide
-t2p analyze-x --overwrite
+ship analyze-x --overwrite
 
 # Reconfigure X API credentials
-t2p analyze-x --setup
+ship analyze-x --setup
 ```
 
 **What it does:**
@@ -193,14 +195,14 @@ t2p analyze-x --setup
 3. Enable OAuth 2.0 in app settings
 4. Set redirect URI to `http://127.0.0.1:3000/callback`
 5. Copy your Client ID
-6. Run `t2p analyze-x` and paste Client ID when prompted
+6. Run `ship analyze-x` and paste Client ID when prompted
 
 **Rate limits:**
 - X API Free tier: 100 reads/month
 - Can analyze once per month with free tier
 - Upgrade to Basic ($200/month) for 10,000 reads if needed
 
-### `t2p posts`
+### `ship posts`
 
 View recently generated posts in a human-readable format with filtering options.
 
@@ -213,25 +215,25 @@ View recently generated posts in a human-readable format with filtering options.
 
 ```bash
 # View last 10 posts
-t2p posts
+ship posts
 
 # View last 20 posts
-t2p posts -n 20
+ship posts -n 20
 
 # Filter by strategy
-t2p posts --strategy "personal-story"
+ship posts --strategy "personal-story"
 
 # Show only high-quality posts
-t2p posts --min-score 70
+ship posts --min-score 70
 
 # Show posts from specific source
-t2p posts --source "meeting-2024"
+ship posts --source "meeting-2024"
 
 # Evaluate posts missing banger scores
-t2p posts --eval
+ship posts --eval
 ```
 
-### `t2p reply`
+### `ship reply`
 
 Find tweets from accounts you follow and generate contextual replies. Posts replies directly via X API.
 
@@ -246,14 +248,14 @@ Find tweets from accounts you follow and generate contextual replies. Posts repl
 
 ```bash
 # Find reply opportunities (default: 10 tweets)
-t2p reply
+ship reply
 
 # Analyze more tweets
-t2p reply --count 20
+ship reply --count 20
 ```
 
 **What it does:**
-1. Authenticates with X API (reuses credentials from `t2p analyze-x`)
+1. Authenticates with X API (reuses credentials from `ship analyze-x`)
 2. Fetches recent tweets from your home timeline
 3. Uses LLM to identify 3-5 best reply opportunities
 4. For each opportunity, generates a contextual reply following your style guide
@@ -272,7 +274,7 @@ Replies follow the "Reply Style" section in `prompts/style.md`:
 - **Free tier** (default): Basic timeline fetch, limited to ~15 requests per 15 minutes
 - **Basic tier** ($100/month): Fetches follower counts, sorts by influence & recency
 
-Configure your tier in `.t2prc.json`:
+Configure your tier in `.shiprc.json`:
 ```json
 {
   "x": {
@@ -289,17 +291,17 @@ The free tier has strict limits. If you hit 429 errors:
 - Consider upgrading to Basic tier for more quota
 
 **Requirements:**
-- Same X API setup as `t2p analyze-x`
+- Same X API setup as `ship analyze-x`
 - App must have "Read and Write" permissions (not just "Read")
 - Required scopes: `tweet.read`, `tweet.write`, `users.read`, `offline.access`
 
 If you get 403 errors when posting:
 1. Go to [X Developer Portal](https://developer.x.com/en/portal/dashboard)
 2. Change app permissions to "Read and write"
-3. Delete `.t2p-tokens.json` to force re-auth
-4. Run `t2p reply` again
+3. Delete `.ship-tokens.json` to force re-auth
+4. Run `ship reply` again
 
-### `t2p review`
+### `ship review`
 
 Interactively review posts one-by-one and decide their fate. Posts are shown sorted by banger score (highest first).
 
@@ -314,10 +316,10 @@ Interactively review posts one-by-one and decide their fate. Posts are shown sor
 
 ```bash
 # Review all new posts
-t2p review
+ship review
 
 # Only review high-quality posts
-t2p review --min-score 70
+ship review --min-score 70
 ```
 
 **What it does:**
@@ -338,7 +340,7 @@ t2p review --min-score 70
 
 ## Configuration
 
-Configuration is stored in `.t2prc.json`:
+Configuration is stored in `.shiprc.json`:
 
 **Using Ollama (default):**
 ```json
@@ -420,7 +422,7 @@ See [ANTHROPIC_SETUP.md](ANTHROPIC_SETUP.md) for detailed instructions on using 
 
 ## Project Structure
 
-After running `t2p init`, your project will look like:
+After running `ship init`, your project will look like:
 
 ```
 your-project/
@@ -437,7 +439,7 @@ your-project/
 │   └── reply.md              # Reply opportunity analysis (advanced)
 ├── strategies.json           # Content strategies (CUSTOMIZABLE!)
 ├── posts.jsonl               # Generated posts (created after first run)
-└── .t2prc.json               # Configuration
+└── .shiprc.json               # Configuration
 ```
 
 ## Output Format
@@ -515,11 +517,11 @@ Use banger scores to prioritize which posts to publish first - start with your h
 
 ## Content Strategies
 
-t2p includes **64 proven content strategies** inspired by Typefully's successful post formats. Strategies are **fully customizable** via `strategies.json` - add your own, modify existing ones, or remove strategies you don't need. Each strategy provides a unique angle or format for presenting your ideas, ensuring maximum variety and engagement across your content.
+ship includes **64 proven content strategies** inspired by Typefully's successful post formats. Strategies are **fully customizable** via `strategies.json` - add your own, modify existing ones, or remove strategies you don't need. Each strategy provides a unique angle or format for presenting your ideas, ensuring maximum variety and engagement across your content.
 
 ### What Are Content Strategies?
 
-Content strategies are tested frameworks for structuring social media posts. Instead of generating generic posts, t2p applies specific strategies like:
+Content strategies are tested frameworks for structuring social media posts. Instead of generating generic posts, ship applies specific strategies like:
 - **Personal Story** - Share an experience, failure, or transformation
 - **How-To Guide** - Provide step-by-step instructions
 - **Bold Observation** - Make a provocative statement that captures attention
@@ -530,14 +532,14 @@ Content strategies are tested frameworks for structuring social media posts. Ins
 ### How It Works
 
 **1. Content Analysis**
-When you run `t2p work`, the system analyzes your transcript to identify characteristics:
+When you run `ship work`, the system analyzes your transcript to identify characteristics:
 - Does it contain personal stories?
 - Does it include actionable advice?
 - Are there strong opinions?
 - Is it about a specific project?
 
 **2. Strategy Selection**
-Based on the analysis, t2p intelligently selects applicable strategies:
+Based on the analysis, ship intelligently selects applicable strategies:
 - Filters out strategies that don't fit your content (e.g., won't use "Personal Story" if there are no personal anecdotes)
 - Ensures diversity across 7 categories (personal, educational, provocative, engagement, curation, behind-the-scenes, reflective)
 - Uses weighted random selection to avoid over-representing any single category
@@ -565,43 +567,43 @@ Each post is generated using one specific strategy:
 **Auto-Select Mode (Default)**
 ```bash
 # Automatically selects 8 diverse strategies per transcript
-t2p work
+ship work
 ```
 
 **List Available Strategies**
 ```bash
 # See all 75 strategies
-t2p work --list-strategies
+ship work --list-strategies
 
 # Filter by category
-t2p work --list-strategies --category educational
+ship work --list-strategies --category educational
 ```
 
 **Manual Strategy Selection**
 ```bash
 # Use one specific strategy
-t2p work --strategy personal-story
+ship work --strategy personal-story
 
 # Use multiple strategies
-t2p work --strategies "how-to-guide,bold-observation,resource-list"
+ship work --strategies "how-to-guide,bold-observation,resource-list"
 
 # Use 5 strategies from educational category
-t2p work --strategies "how-to-guide,step-by-step,framework,quick-tip,common-mistakes"
+ship work --strategies "how-to-guide,step-by-step,framework,quick-tip,common-mistakes"
 ```
 
 **Control Post Count**
 ```bash
 # Generate 12 posts instead of 8
-t2p work --count 12
+ship work --count 12
 
 # Generate just 3 posts with specific strategies
-t2p work --count 3 --strategies "personal-story,how-to-guide,bold-observation"
+ship work --count 3 --strategies "personal-story,how-to-guide,bold-observation"
 ```
 
 **Disable Strategies (Legacy Mode)**
 ```bash
 # Use original batch generation (no strategies)
-t2p work --no-strategies
+ship work --no-strategies
 ```
 
 ### Customizing Strategies
@@ -658,7 +660,7 @@ vim strategies.json
 ]
 
 # 3. Test your new strategy
-t2p work --strategy weekly-reflection
+ship work --strategy weekly-reflection
 ```
 
 **Removing Strategies:**
@@ -669,7 +671,7 @@ Edit the `prompt` field to change how posts are generated. For example, you migh
 
 ### Configuration
 
-Fine-tune strategy behavior in `.t2prc.json`:
+Fine-tune strategy behavior in `.shiprc.json`:
 
 ```json
 {
@@ -722,7 +724,7 @@ cat posts.jsonl | jq -r '.status' | sort | uniq -c
 
 ## Getting Transcripts from Granola
 
-[Granola](https://www.granola.ai/) is an AI meeting transcription tool. Here's how to get your meeting transcripts into t2p:
+[Granola](https://www.granola.ai/) is an AI meeting transcription tool. Here's how to get your meeting transcripts into ship:
 
 ### Method 1: Manual Copy (Built-in)
 
@@ -750,24 +752,24 @@ For power users with [Raycast](https://www.raycast.com/):
 1. Install the [Granola Raycast extension](https://www.raycast.com/Rob/granola)
 2. Select multiple notes for bulk export
 3. Use folder-aware filtering to organize transcripts
-4. Export directly to your t2p `input/` directory
+4. Export directly to your ship `input/` directory
 
 ### Tips for Granola Users
 
 - **Naming convention**: Use descriptive filenames like `YYYY-MM-DD-topic.txt` for easier tracking
-- **Batch processing**: Export multiple meetings at once, then run `t2p work` to process them all
+- **Batch processing**: Export multiple meetings at once, then run `ship work` to process them all
 - **Integrations**: Granola also supports direct export to Notion, Hubspot, and Slack (no API/Zapier yet)
 - **Clean transcripts**: Remove excessive filler words in Granola before exporting for better post quality
 
 ## Example Workflow
 
-Here's a typical workflow for using t2p:
+Here's a typical workflow for using ship:
 
 ```bash
 # 1. Set up a new project
 mkdir my-content-pipeline
 cd my-content-pipeline
-t2p init
+ship init
 
 # 2. Customize your style
 # Edit prompts/style.md to define your:
@@ -781,22 +783,22 @@ cp ~/Downloads/meeting-notes-*.txt input/
 echo "Today I learned..." > input/quick-thoughts.md
 
 # 4. Generate posts
-t2p work
+ship work
 
 # 5. Review generated posts
-t2p posts
+ship posts
 
 # 6. Review and stage to Typefully
-t2p review --min-score 70
+ship review --min-score 70
 
 # 7. Process more content later
 cp ~/new-transcript.txt input/
-t2p work  # Appends new posts to posts.jsonl
+ship work  # Appends new posts to posts.jsonl
 ```
 
 ## Customizing Prompts
 
-All prompts used by t2p are stored as editable files in the `prompts/` directory. This allows you to customize the AI's behavior without touching any code.
+All prompts used by ship are stored as editable files in the `prompts/` directory. This allows you to customize the AI's behavior without touching any code.
 
 ### Prompt Files
 
@@ -809,7 +811,7 @@ All prompts used by t2p are stored as editable files in the `prompts/` directory
 - `prompts/analysis.md` - Prompt used to analyze your X posts and generate style guides
 - `prompts/content-analysis.md` - Criteria for analyzing transcript content and selecting strategies
 - `prompts/banger-eval.md` - Scoring criteria for evaluating viral potential
-- `prompts/reply.md` - Reply opportunity analysis for `t2p reply` command
+- `prompts/reply.md` - Reply opportunity analysis for `ship reply` command
 
 ### Why User-Editable Prompts?
 
@@ -848,7 +850,7 @@ All prompts used by t2p are stored as editable files in the `prompts/` directory
 
 ## Community Style Examples
 
-Learn from real-world examples! The `community-examples/style/` directory contains style.md files contributed by the t2p community. Browse these to:
+Learn from real-world examples! The `community-examples/style/` directory contains style.md files contributed by the ship community. Browse these to:
 
 - See how others define their voice and tone
 - Discover different writing styles (casual, professional, humorous, etc.)
@@ -981,17 +983,17 @@ export ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
 - Ensure your Anthropic account has credits
 - Check the status at https://status.anthropic.com/
 
-### Not a t2p project
+### Not a ship project
 
 ```
-✗ Not a t2p project. Run: t2p init
+✗ Not a ship project. Run: ship init
 ```
 
-**Solution:** Run `t2p init` in your project directory, or ensure you're in the correct directory.
+**Solution:** Run `ship init` in your project directory, or ensure you're in the correct directory.
 
 ### Configuration error
 
-Ensure your `.t2prc.json` is valid JSON and includes the required fields:
+Ensure your `.shiprc.json` is valid JSON and includes the required fields:
 
 ```json
 {
@@ -1029,8 +1031,8 @@ bd create "..."  # Create new issue
 src/
 ├── index.ts              # CLI entry point with Commander
 ├── commands/
-│   ├── init.ts           # t2p init implementation
-│   └── work.ts           # t2p work implementation
+│   ├── init.ts           # ship init implementation
+│   └── work.ts           # ship work implementation
 ├── types/
 │   ├── config.ts         # Configuration types
 │   └── post.ts           # Post schema
@@ -1049,7 +1051,7 @@ This project uses [bd (beads)](https://github.com/steveyegge/beads) for issue tr
 
 ## Typefully Integration
 
-t2p integrates with [Typefully](https://typefully.com/) to help you stage posts directly as drafts. This streamlines your workflow from transcript → posts → published content.
+ship integrates with [Typefully](https://typefully.com/) to help you stage posts directly as drafts. This streamlines your workflow from transcript → posts → published content.
 
 ### Setup
 
@@ -1079,7 +1081,7 @@ t2p integrates with [Typefully](https://typefully.com/) to help you stage posts 
 **Interactive review and staging:**
 ```bash
 # Review posts and stage the best ones
-t2p review --min-score 70
+ship review --min-score 70
 ```
 
 During review:
@@ -1115,22 +1117,22 @@ cat posts.jsonl | jq -r 'select(.metadata.typefullyDraftId) | .metadata.typefull
 ## Roadmap
 
 **Core Features (v0.1.0)**
-- [x] `t2p init` — Initialize project structure
-- [x] `t2p work` — Process transcripts into posts with Ollama
-- [x] `t2p analyze-x` — Generate style guide from your X posts (X API v2 free tier)
-- [x] `t2p posts` — View and filter generated posts
-- [x] `t2p review` — Interactive post review and staging
-- [x] `t2p reply` — Reply guy mode with X API posting
+- [x] `ship init` — Initialize project structure
+- [x] `ship work` — Process transcripts into posts with Ollama
+- [x] `ship analyze-x` — Generate style guide from your X posts (X API v2 free tier)
+- [x] `ship posts` — View and filter generated posts
+- [x] `ship review` — Interactive post review and staging
+- [x] `ship reply` — Reply guy mode with X API posting
 - [x] Typefully integration for staging drafts
 - [x] Configurable models and generation settings
 - [x] JSONL output format with full metadata
 
 **Planned Features**
-- [ ] `t2p analyze` — Success metrics analysis (X Basic API, $200/mo)
+- [ ] `ship analyze` — Success metrics analysis (X Basic API, $200/mo)
 - [ ] News-aware post generation (incorporate trending topics)
 - [ ] LinkedIn support in Typefully integration
 - [ ] Multiple output format support (CSV, Markdown)
-- [ ] Bulk staging with `t2p stage <n>` command
+- [ ] Bulk staging with `ship stage <n>` command
 
 ## License
 
