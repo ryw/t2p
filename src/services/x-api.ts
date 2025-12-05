@@ -8,6 +8,9 @@ export interface Tweet {
   authorUsername?: string;
   authorName?: string;
   authorFollowersCount?: number;
+  likeCount?: number;
+  replyCount?: number;
+  retweetCount?: number;
 }
 
 export class XApiService {
@@ -83,7 +86,7 @@ export class XApiService {
 
       const timeline = await this.client.v2.homeTimeline({
         max_results: limit,
-        'tweet.fields': ['created_at', 'text', 'author_id'],
+        'tweet.fields': ['created_at', 'text', 'author_id', 'public_metrics'],
         expansions: ['author_id'],
         'user.fields': [...userFields],
         exclude: ['retweets'], // Include replies but not retweets
@@ -103,6 +106,7 @@ export class XApiService {
 
       for await (const tweet of timeline) {
         const author = tweet.author_id ? authorMap.get(tweet.author_id) : undefined;
+        const metrics = (tweet as any).public_metrics;
         tweets.push({
           id: tweet.id,
           text: tweet.text,
@@ -111,6 +115,9 @@ export class XApiService {
           authorUsername: author?.username,
           authorName: author?.name,
           authorFollowersCount: author?.followersCount,
+          likeCount: metrics?.like_count,
+          replyCount: metrics?.reply_count,
+          retweetCount: metrics?.retweet_count,
         });
 
         if (tweets.length >= maxResults) {

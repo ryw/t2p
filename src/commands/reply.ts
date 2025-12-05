@@ -20,9 +20,31 @@ interface ReplyOpportunity {
 
 function formatFollowerCount(count?: number): string {
   if (!count) return '';
-  if (count >= 1_000_000) return ` (${(count / 1_000_000).toFixed(1)}M followers)`;
-  if (count >= 1_000) return ` (${(count / 1_000).toFixed(1)}K followers)`;
-  return ` (${count} followers)`;
+  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
+  if (count >= 1_000) return `${(count / 1_000).toFixed(1)}K`;
+  return `${count}`;
+}
+
+function formatCount(count?: number): string {
+  if (count === undefined || count === null) return '0';
+  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
+  if (count >= 1_000) return `${(count / 1_000).toFixed(1)}K`;
+  return `${count}`;
+}
+
+function formatTimeAgo(dateStr: string): string {
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays === 1) return '1d ago';
+  return `${diffDays}d ago`;
 }
 
 function displayTweetForReply(opportunity: ReplyOpportunity, index: number, total: number): void {
@@ -30,16 +52,27 @@ function displayTweetForReply(opportunity: ReplyOpportunity, index: number, tota
   logger.info(`[${index + 1}/${total}] Reply opportunity`);
   logger.info('─'.repeat(72));
 
-  // Original tweet
+  // Original tweet header
   const author = opportunity.tweet.authorUsername
     ? `@${opportunity.tweet.authorUsername}`
     : 'Unknown';
-  const followers = formatFollowerCount(opportunity.tweet.authorFollowersCount);
-  logger.info(`${author}${followers}:`);
+  const followers = opportunity.tweet.authorFollowersCount
+    ? ` • ${formatFollowerCount(opportunity.tweet.authorFollowersCount)} followers`
+    : '';
+  const timeAgo = formatTimeAgo(opportunity.tweet.createdAt);
+  logger.info(`${author}${followers} • ${timeAgo}`);
+
+  // Tweet content
   const tweetLines = opportunity.tweet.text.split('\n');
   tweetLines.forEach((line) => {
     logger.info(`  ${line}`);
   });
+
+  // Engagement stats
+  const likes = formatCount(opportunity.tweet.likeCount);
+  const replies = formatCount(opportunity.tweet.replyCount);
+  const retweets = formatCount(opportunity.tweet.retweetCount);
+  logger.info(`  ♥ ${likes}  💬 ${replies}  🔁 ${retweets}`);
 
   logger.blank();
   logger.info('Suggested reply:');
