@@ -256,6 +256,9 @@ export async function replyCommand(options: ReplyOptions): Promise<void> {
 
     let tweets = await apiService.getHomeTimeline(maxTweets, includeMetrics);
 
+    // Filter out user's own tweets
+    tweets = tweets.filter((t) => t.authorUsername?.toLowerCase() !== user.username.toLowerCase());
+
     if (tweets.length === 0) {
       logger.error('No tweets found in timeline');
       process.exit(1);
