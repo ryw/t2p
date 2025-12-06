@@ -117,34 +117,65 @@ async function promptForReplyDecision(): Promise<'post' | 'edit' | 'skip' | 'qui
 }
 
 async function editReply(currentReply: string): Promise<string> {
-  logger.info('Enter your edited reply (press Enter twice to finish):');
+  logger.info('Edit your reply (Enter=newline, Ctrl+D=submit, Ctrl+C=cancel):');
+  logger.info(`Current: "${currentReply}"`);
+  logger.info('─'.repeat(40));
 
   return new Promise((resolve) => {
-    const rl = createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
+    let content = '';
+    const stdin = process.stdin;
 
-    let reply = '';
-    let emptyLineCount = 0;
+    const wasRaw = stdin.isRaw;
+    stdin.setRawMode(true);
+    stdin.resume();
+    stdin.setEncoding('utf8');
 
-    rl.on('line', (line) => {
-      if (line === '') {
-        emptyLineCount++;
-        if (emptyLineCount >= 1) {
-          rl.close();
-          resolve(reply.trim() || currentReply);
-          return;
-        }
-        reply += '\n';
-      } else {
-        emptyLineCount = 0;
-        reply += (reply ? '\n' : '') + line;
+    const cleanup = () => {
+      stdin.setRawMode(wasRaw ?? false);
+      stdin.removeListener('data', onData);
+    };
+
+    const onData = (key: string) => {
+      // Ctrl+D - submit
+      if (key === '\x04') {
+        cleanup();
+        process.stdout.write('\n');
+        const result = content.trim() || currentReply;
+        resolve(result);
+        return;
       }
-    });
 
-    // Show current reply as reference
-    logger.info(`(Current: "${currentReply}")`);
+      // Ctrl+C - cancel, keep original
+      if (key === '\x03') {
+        cleanup();
+        process.stdout.write('\n');
+        logger.info('Cancelled, keeping original reply');
+        resolve(currentReply);
+        return;
+      }
+
+      // Backspace
+      if (key === '\x7f' || key === '\b') {
+        if (content.length > 0) {
+          content = content.slice(0, -1);
+          process.stdout.write('\b \b');
+        }
+        return;
+      }
+
+      // Enter - add newline
+      if (key === '\r' || key === '\n') {
+        content += '\n';
+        process.stdout.write('\n');
+        return;
+      }
+
+      // Regular character
+      content += key;
+      process.stdout.write(key);
+    };
+
+    stdin.on('data', onData);
   });
 }
 
