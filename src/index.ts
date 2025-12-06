@@ -14,6 +14,7 @@ import { postsCommand } from './commands/posts.js';
 import { reviewCommand } from './commands/review.js';
 import { analyzeXCommand } from './commands/analyze-x.js';
 import { replyCommand } from './commands/reply.js';
+import { xStatusCommand } from './commands/x-status.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -76,5 +77,10 @@ program
   .description('Find tweets to reply to and post replies via X API')
   .option('--count <n>', 'Number of tweets to analyze from timeline', parseInt, 10)
   .action(replyCommand);
+
+program
+  .command('x-status')
+  .description('Check X API rate limits and usage')
+  .action(xStatusCommand);
 
 program.parse();

@@ -150,4 +150,49 @@ export class XApiService {
       throw new Error(`Failed to post reply: ${error.message || 'Unknown error'}`);
     }
   }
+
+  /**
+   * Get rate limit status for key endpoints
+   */
+  async getRateLimitStatus(): Promise<{
+    user: { limit: number; remaining: number; reset: Date } | null;
+    timeline: { limit: number; remaining: number; reset: Date } | null;
+    tweets: { limit: number; remaining: number; reset: Date } | null;
+  }> {
+    const status = {
+      user: null as { limit: number; remaining: number; reset: Date } | null,
+      timeline: null as { limit: number; remaining: number; reset: Date } | null,
+      tweets: null as { limit: number; remaining: number; reset: Date } | null,
+    };
+
+    try {
+      // Check user endpoint rate limit
+      const meResult = await this.client.v2.me() as any;
+      if (meResult.rateLimit) {
+        status.user = {
+          limit: meResult.rateLimit.limit,
+          remaining: meResult.rateLimit.remaining,
+          reset: new Date(meResult.rateLimit.reset * 1000),
+        };
+      }
+    } catch {
+      // Ignore errors
+    }
+
+    try {
+      // Check timeline endpoint rate limit (minimal request)
+      const timelineResult = await this.client.v2.homeTimeline({ max_results: 10 }) as any;
+      if (timelineResult.rateLimit) {
+        status.timeline = {
+          limit: timelineResult.rateLimit.limit,
+          remaining: timelineResult.rateLimit.remaining,
+          reset: new Date(timelineResult.rateLimit.reset * 1000),
+        };
+      }
+    } catch {
+      // Ignore errors
+    }
+
+    return status;
+  }
 }
