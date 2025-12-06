@@ -152,6 +152,18 @@ export class XApiService {
   }
 
   /**
+   * Like a tweet
+   */
+  async likeTweet(tweetId: string): Promise<void> {
+    try {
+      const me = await this.client.v2.me();
+      await this.client.v2.like(me.data.id, tweetId);
+    } catch (error: any) {
+      throw new Error(`Failed to like tweet: ${error.message || 'Unknown error'}`);
+    }
+  }
+
+  /**
    * Get rate limit status for key endpoints
    */
   async getRateLimitStatus(): Promise<{

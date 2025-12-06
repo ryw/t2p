@@ -388,11 +388,19 @@ export async function replyCommand(options: ReplyOptions): Promise<void> {
         logger.info(`${logger.style.dim('Edited reply:')} "${replyText}"`);
       }
 
-      // Post the reply
+      // Post the reply and like the tweet
       try {
         const postedReply = await apiService.postReply(opportunity.tweet.id, replyText);
         posted++;
         logger.success(`Posted reply! https://x.com/i/status/${postedReply.id}`);
+
+        // Like the original tweet
+        try {
+          await apiService.likeTweet(opportunity.tweet.id);
+          logger.info(`${logger.style.red('♥')} Liked`);
+        } catch {
+          // Silently ignore like failures (may already be liked)
+        }
       } catch (error) {
         logger.error(`Failed to post: ${(error as Error).message}`);
       }
