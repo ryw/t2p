@@ -48,55 +48,83 @@ function formatTimeAgo(dateStr: string): string {
 }
 
 function displayTweetForReply(opportunity: ReplyOpportunity, index: number, total: number): void {
+  const { style } = logger;
+  const width = 72;
+
   logger.blank();
-  logger.info(`[${index + 1}/${total}] Reply opportunity`);
-  logger.info('─'.repeat(72));
 
-  // Original tweet header
+  // Header with progress indicator
+  const progress = style.dim(`[${index + 1}/${total}]`);
+  logger.info(`${progress} ${style.bold('Reply Opportunity')}`);
+  logger.info(style.dim(logger.box.line(width)));
+
+  // Author info with styling
   const author = opportunity.tweet.authorUsername
-    ? `@${opportunity.tweet.authorUsername}`
-    : 'Unknown';
+    ? style.cyan(`@${opportunity.tweet.authorUsername}`)
+    : style.dim('Unknown');
   const followers = opportunity.tweet.authorFollowersCount
-    ? ` • ${formatFollowerCount(opportunity.tweet.authorFollowersCount)} followers`
+    ? style.yellow(` ${formatFollowerCount(opportunity.tweet.authorFollowersCount)}`)
     : '';
-  const timeAgo = formatTimeAgo(opportunity.tweet.createdAt);
-  logger.info(`${author}${followers} • ${timeAgo}`);
+  const timeAgo = style.dim(formatTimeAgo(opportunity.tweet.createdAt));
+  logger.info(`${author}${followers} ${style.dim('•')} ${timeAgo}`);
 
-  // Tweet content
+  logger.blank();
+
+  // Tweet content (white/default for readability)
   const tweetLines = opportunity.tweet.text.split('\n');
   tweetLines.forEach((line) => {
     logger.info(`  ${line}`);
   });
 
-  // Engagement stats and URL
+  logger.blank();
+
+  // Engagement stats with color-coded icons
   const likes = formatCount(opportunity.tweet.likeCount);
   const replies = formatCount(opportunity.tweet.replyCount);
   const retweets = formatCount(opportunity.tweet.retweetCount);
-  logger.info(`  ♥ ${likes}  💬 ${replies}  🔁 ${retweets}`);
+  logger.info(
+    `  ${style.red('♥')} ${style.dim(likes)}  ${style.blue('💬')} ${style.dim(replies)}  ${style.green('↻')} ${style.dim(retweets)}`
+  );
 
+  // URL (dimmed, clickable in Ghostty)
   const tweetUrl = opportunity.tweet.authorUsername
     ? `https://x.com/${opportunity.tweet.authorUsername}/status/${opportunity.tweet.id}`
     : `https://x.com/i/status/${opportunity.tweet.id}`;
-  logger.info(`  ${tweetUrl}`);
+  logger.info(`  ${style.dim(tweetUrl)}`);
 
   logger.blank();
-  logger.info('Suggested reply:');
-  logger.info('─'.repeat(72));
+  logger.info(style.dim(logger.box.line(width)));
+
+  // Suggested reply section
+  logger.info(`${style.brightGreen('▶')} ${style.bold('Suggested Reply')}`);
+  logger.blank();
   const replyLines = opportunity.suggestedReply.split('\n');
   replyLines.forEach((line) => {
-    logger.info(`  ${line}`);
+    logger.info(`  ${style.brightCyan(line)}`);
   });
-  logger.info('─'.repeat(72));
+
+  logger.blank();
+  logger.info(style.dim(logger.box.line(width)));
 }
 
 async function promptForReplyDecision(): Promise<'post' | 'edit' | 'skip' | 'quit'> {
+  const { style } = logger;
+
   return new Promise((resolve) => {
     const rl = createInterface({
       input: process.stdin,
       output: process.stdout,
     });
 
-    rl.question('\nEnter=post / e=edit / n=skip / q=quit: ', (answer) => {
+    // Styled prompt with keyboard hints
+    const prompt = [
+      '',
+      `  ${style.green('⏎ Enter')} post  │  ${style.yellow('e')} edit  │  ${style.dim('n')} skip  │  ${style.red('q')} quit`,
+      '',
+      `  ${style.dim('>')} `,
+    ].join('\n');
+
+    rl.question(prompt, (answer) => {
       rl.close();
       const trimmed = answer.trim().toLowerCase();
 
@@ -117,9 +145,15 @@ async function promptForReplyDecision(): Promise<'post' | 'edit' | 'skip' | 'qui
 }
 
 async function editReply(currentReply: string): Promise<string> {
-  logger.info('Edit your reply (Enter=newline, Ctrl+D=submit, Ctrl+C=cancel):');
-  logger.info(`Current: "${currentReply}"`);
-  logger.info('─'.repeat(40));
+  const { style } = logger;
+
+  logger.blank();
+  logger.info(style.bold('Edit Reply'));
+  logger.info(`${style.green('⏎ Enter')} newline  │  ${style.cyan('Ctrl+D')} submit  │  ${style.red('Ctrl+C')} cancel`);
+  logger.blank();
+  logger.info(style.dim(`Current: "${currentReply}"`));
+  logger.info(style.dim(logger.box.line(50)));
+  logger.blank();
 
   return new Promise((resolve) => {
     let content = '';
@@ -267,11 +301,12 @@ export async function replyCommand(options: ReplyOptions): Promise<void> {
 
     const apiTier = config.x?.apiTier || 'free';
     const includeMetrics = apiTier === 'basic';
+    const { style } = logger;
 
     if (includeMetrics) {
-      logger.info('BASIC X MODE: Tweets sorted by influence, with engagement metrics');
+      logger.info(`${style.cyan('⚡')} ${style.bold(style.cyan('BASIC X MODE'))} ${style.dim('• sorted by influence • engagement metrics')}`);
     } else {
-      logger.info('FREE X MODE: Chronological timeline without metrics');
+      logger.info(`${style.dim('○')} ${style.bold('FREE X MODE')} ${style.dim('• chronological • no metrics')}`);
     }
 
     // Step 3: Fetch timeline and generate replies
