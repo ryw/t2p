@@ -169,7 +169,11 @@ export async function statsCommand(): Promise<void> {
             process.exit(1);
           }
         } else {
-          throw error;
+          // Show detailed error for debugging
+          logger.error(`Failed to fetch tweets: ${error.message || 'Unknown error'}`);
+          if (error.code) logger.info(style.dim(`   Error code: ${error.code}`));
+          if (error.details && error.details !== '{}') logger.info(style.dim(`   Details: ${error.details}`));
+          process.exit(1);
         }
       }
     }
@@ -352,7 +356,13 @@ async function getRecentTweetsWithMetrics(accessToken: string, userId: string, c
         : undefined;
       throw { isRateLimit: true, resetTime, message: 'Rate limit reached' };
     }
-    throw error;
+    // Log actual error for debugging
+    throw {
+      isRateLimit: false,
+      message: error.message || 'Unknown error',
+      code: error.code,
+      details: JSON.stringify(error.data || error.errors || {}, null, 2)
+    };
   }
 }
 
