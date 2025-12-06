@@ -307,7 +307,9 @@ export async function replyCommand(options: ReplyOptions): Promise<void> {
     // Step 3: Fetch timeline and generate replies
     logger.section('[3/4] Finding reply opportunities...');
 
-    const maxTweets = options.count || 10;
+    // Default: 20 tweets for Basic tier, 10 for Free tier
+    const defaultCount = includeMetrics ? 20 : 10;
+    const maxTweets = options.count || defaultCount;
 
     if (includeMetrics) {
       logger.info(`Fetching ${maxTweets} tweets with metrics...`);
