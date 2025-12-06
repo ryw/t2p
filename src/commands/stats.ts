@@ -111,9 +111,9 @@ export async function statsCommand(): Promise<void> {
       console.log(`    ${style.bold(formatNumber(meWithMetrics.followers))} ${style.dim('followers')}    ${style.bold(formatNumber(meWithMetrics.following))} ${style.dim('following')}    ${style.bold(formatNumber(meWithMetrics.tweets))} ${style.dim('tweets')}`);
     }
 
-    // Fetch recent tweets with metrics
-    logger.info(style.dim('\n    Fetching recent tweets...'));
-    const tweets = await getRecentTweetsWithMetrics(accessToken, me.id, 100);
+    // Fetch recent tweets with metrics (up to 500 to cover ~30 days)
+    logger.info(style.dim('\n    Fetching recent tweets (this may take a moment)...'));
+    const tweets = await getRecentTweetsWithMetrics(accessToken, me.id, 500);
 
     if (tweets.length === 0) {
       logger.warn('No recent tweets found');
@@ -258,48 +258,62 @@ async function getMeWithMetrics(accessToken: string): Promise<{ followers: numbe
   }
 }
 
-// Helper to get tweets with full metrics
+// Helper to get tweets with full metrics (paginates to get up to `count` tweets)
 async function getRecentTweetsWithMetrics(accessToken: string, userId: string, count: number): Promise<TweetWithMetrics[]> {
   try {
     const { TwitterApi } = await import('twitter-api-v2');
     const client = new TwitterApi(accessToken);
 
     const tweets: TweetWithMetrics[] = [];
-    const timeline = await client.v2.userTimeline(userId, {
-      max_results: Math.min(count, 100),
-      'tweet.fields': ['created_at', 'public_metrics', 'organic_metrics', 'non_public_metrics'],
-      exclude: ['retweets'],
-    });
+    let paginationToken: string | undefined;
 
-    for await (const tweet of timeline) {
-      const organic = (tweet as any).organic_metrics || {};
-      const pub = (tweet as any).public_metrics || {};
-      const nonPub = (tweet as any).non_public_metrics || {};
-
-      const impressions = organic.impression_count || 0;
-      const likes = pub.like_count || 0;
-      const replies = pub.reply_count || 0;
-      const retweets = pub.retweet_count || 0;
-      const quotes = pub.quote_count || 0;
-      const bookmarks = nonPub.bookmark_count || pub.bookmark_count || 0;
-
-      const totalEngagement = likes + replies + retweets + quotes;
-      const engagementRate = impressions > 0 ? (totalEngagement / impressions) * 100 : 0;
-
-      tweets.push({
-        id: tweet.id,
-        text: tweet.text,
-        createdAt: tweet.created_at || new Date().toISOString(),
-        impressions,
-        likes,
-        replies,
-        retweets,
-        quotes,
-        bookmarks,
-        engagementRate,
+    // Paginate through results
+    while (tweets.length < count) {
+      const timeline = await client.v2.userTimeline(userId, {
+        max_results: Math.min(100, count - tweets.length),
+        'tweet.fields': ['created_at', 'public_metrics', 'organic_metrics', 'non_public_metrics'],
+        exclude: ['retweets'],
+        pagination_token: paginationToken,
       });
 
-      if (tweets.length >= count) break;
+      if (!timeline.data?.data || timeline.data.data.length === 0) {
+        break;
+      }
+
+      for (const tweet of timeline.data.data) {
+        const organic = (tweet as any).organic_metrics || {};
+        const pub = (tweet as any).public_metrics || {};
+        const nonPub = (tweet as any).non_public_metrics || {};
+
+        const impressions = organic.impression_count || 0;
+        const likes = pub.like_count || 0;
+        const replies = pub.reply_count || 0;
+        const retweets = pub.retweet_count || 0;
+        const quotes = pub.quote_count || 0;
+        const bookmarks = nonPub.bookmark_count || pub.bookmark_count || 0;
+
+        const totalEngagement = likes + replies + retweets + quotes;
+        const engagementRate = impressions > 0 ? (totalEngagement / impressions) * 100 : 0;
+
+        tweets.push({
+          id: tweet.id,
+          text: tweet.text,
+          createdAt: tweet.created_at || new Date().toISOString(),
+          impressions,
+          likes,
+          replies,
+          retweets,
+          quotes,
+          bookmarks,
+          engagementRate,
+        });
+
+        if (tweets.length >= count) break;
+      }
+
+      // Get next page token
+      paginationToken = timeline.data.meta?.next_token;
+      if (!paginationToken) break;
     }
 
     return tweets;
