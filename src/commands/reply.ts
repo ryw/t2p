@@ -1,4 +1,8 @@
 import { createInterface } from 'readline';
+import { spawnSync } from 'child_process';
+import { writeFileSync, readFileSync, unlinkSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
 import { FileSystemService } from '../services/file-system.js';
 import { XAuthService } from '../services/x-auth.js';
 import { XApiService, Tweet } from '../services/x-api.js';
@@ -144,73 +148,64 @@ async function promptForReplyDecision(): Promise<'post' | 'edit' | 'skip' | 'qui
   });
 }
 
-async function editReply(currentReply: string): Promise<string> {
+function editReply(currentReply: string): string {
   const { style } = logger;
 
+  // Create temp file with current reply
+  const tmpFile = join(tmpdir(), `ship-reply-${Date.now()}.txt`);
+  const header = `# Edit your reply below. Lines starting with # are ignored.
+# Save and close the editor to submit, or delete all content to cancel.
+# ─────────────────────────────────────────────────────────────────────
+
+`;
+  writeFileSync(tmpFile, header + currentReply, 'utf8');
+
+  // Determine editor (same order as git)
+  const editor = process.env.VISUAL || process.env.EDITOR || 'vim';
+
   logger.blank();
-  logger.info(style.bold('Edit Reply'));
-  logger.info(`${style.green('⏎ Enter')} newline  │  ${style.cyan('Ctrl+D')} submit  │  ${style.red('Ctrl+C')} cancel`);
-  logger.blank();
-  logger.info(style.dim(`Current: "${currentReply}"`));
-  logger.info(style.dim(logger.box.line(50)));
-  logger.blank();
+  logger.info(`${style.cyan('✎')} ${style.bold('Opening editor...')} ${style.dim(`(${editor})`)}`);
 
-  return new Promise((resolve) => {
-    let content = '';
-    const stdin = process.stdin;
+  try {
+    // Spawn editor synchronously
+    const result = spawnSync(editor, [tmpFile], {
+      stdio: 'inherit',
+      shell: true,
+    });
 
-    const wasRaw = stdin.isRaw;
-    stdin.setRawMode(true);
-    stdin.resume();
-    stdin.setEncoding('utf8');
+    if (result.status !== 0) {
+      logger.warn('Editor exited with non-zero status, keeping original');
+      return currentReply;
+    }
 
-    const cleanup = () => {
-      stdin.setRawMode(wasRaw ?? false);
-      stdin.removeListener('data', onData);
-    };
+    // Read back the edited content
+    const edited = readFileSync(tmpFile, 'utf8');
 
-    const onData = (key: string) => {
-      // Ctrl+D - submit
-      if (key === '\x04') {
-        cleanup();
-        process.stdout.write('\n');
-        const result = content.trim() || currentReply;
-        resolve(result);
-        return;
-      }
+    // Remove comment lines and trim
+    const content = edited
+      .split('\n')
+      .filter((line) => !line.startsWith('#'))
+      .join('\n')
+      .trim();
 
-      // Ctrl+C - cancel, keep original
-      if (key === '\x03') {
-        cleanup();
-        process.stdout.write('\n');
-        logger.info('Cancelled, keeping original reply');
-        resolve(currentReply);
-        return;
-      }
+    // If empty, keep original
+    if (!content) {
+      logger.info(style.dim('Empty content, keeping original reply'));
+      return currentReply;
+    }
 
-      // Backspace
-      if (key === '\x7f' || key === '\b') {
-        if (content.length > 0) {
-          content = content.slice(0, -1);
-          process.stdout.write('\b \b');
-        }
-        return;
-      }
-
-      // Enter - add newline
-      if (key === '\r' || key === '\n') {
-        content += '\n';
-        process.stdout.write('\n');
-        return;
-      }
-
-      // Regular character
-      content += key;
-      process.stdout.write(key);
-    };
-
-    stdin.on('data', onData);
-  });
+    return content;
+  } catch (error) {
+    logger.error(`Failed to open editor: ${(error as Error).message}`);
+    return currentReply;
+  } finally {
+    // Clean up temp file
+    try {
+      unlinkSync(tmpFile);
+    } catch {
+      // Ignore cleanup errors
+    }
+  }
 }
 
 function buildReplyPrompt(
@@ -389,8 +384,8 @@ export async function replyCommand(options: ReplyOptions): Promise<void> {
       let replyText = opportunity.suggestedReply;
 
       if (decision === 'edit') {
-        replyText = await editReply(opportunity.suggestedReply);
-        logger.info(`Edited reply: "${replyText}"`);
+        replyText = editReply(opportunity.suggestedReply);
+        logger.info(`${logger.style.dim('Edited reply:')} "${replyText}"`);
       }
 
       // Post the reply
