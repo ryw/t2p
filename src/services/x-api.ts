@@ -86,7 +86,7 @@ export class XApiService {
 
       const timeline = await this.client.v2.homeTimeline({
         max_results: limit,
-        'tweet.fields': ['created_at', 'text', 'author_id', 'public_metrics'],
+        'tweet.fields': ['created_at', 'text', 'author_id', 'public_metrics', 'note_tweet'],
         expansions: ['author_id'],
         'user.fields': [...userFields],
         exclude: ['retweets'], // Include replies but not retweets
@@ -107,9 +107,12 @@ export class XApiService {
       for await (const tweet of timeline) {
         const author = tweet.author_id ? authorMap.get(tweet.author_id) : undefined;
         const metrics = (tweet as any).public_metrics;
+        // Use note_tweet.text for full text of long tweets, fallback to text
+        const noteTweet = (tweet as any).note_tweet;
+        const fullText = noteTweet?.text || tweet.text;
         tweets.push({
           id: tweet.id,
-          text: tweet.text,
+          text: fullText,
           createdAt: tweet.created_at || new Date().toISOString(),
           authorId: tweet.author_id,
           authorUsername: author?.username,
