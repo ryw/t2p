@@ -15,6 +15,7 @@ import { reviewCommand } from './commands/review.js';
 import { analyzeXCommand } from './commands/analyze-x.js';
 import { replyCommand } from './commands/reply.js';
 import { xStatusCommand } from './commands/x-status.js';
+import { statsCommand } from './commands/stats.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -82,5 +83,10 @@ program
   .command('x-status')
   .description('Check X API rate limits and usage')
   .action(xStatusCommand);
+
+program
+  .command('stats')
+  .description('Comprehensive X stats dashboard with all metrics')
+  .action(statsCommand);
 
 program.parse();
