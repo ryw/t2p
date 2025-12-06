@@ -341,9 +341,7 @@ export async function replyCommand(options: ReplyOptions): Promise<void> {
         logger.info(style.bold('📊 Impression Stats (last 5 days)'));
 
         // Show daily breakdown
-        // Use local date (not UTC)
-        const now = new Date();
-        const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const todayStr = new Date().toISOString().split('T')[0];
         const todayImpressions = stats.dailyImpressions.find(d => d.date === todayStr)?.impressions || 0;
         logger.info(`   ${style.dim('Today:')} ${style.brightCyan(formatCount(todayImpressions))}`);
         logger.info(`   ${style.dim('5-day total:')} ${formatCount(stats.totalImpressions)}`);

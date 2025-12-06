@@ -230,9 +230,7 @@ export class XApiService {
       const dailyMap = new Map<string, number>();
 
       for await (const tweet of timeline) {
-        // Use local date (not UTC) for accurate daily grouping
-        const tweetDateObj = new Date(tweet.created_at || '');
-        const tweetDate = `${tweetDateObj.getFullYear()}-${String(tweetDateObj.getMonth() + 1).padStart(2, '0')}-${String(tweetDateObj.getDate()).padStart(2, '0')}`;
+        const tweetDate = new Date(tweet.created_at || '').toISOString().split('T')[0];
         const impressions = (tweet as any).organic_metrics?.impression_count || 0;
         dailyMap.set(tweetDate, (dailyMap.get(tweetDate) || 0) + impressions);
       }
