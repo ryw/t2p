@@ -9,7 +9,7 @@ You are helping identify tweets worth replying to and generating appropriate rep
 {{TWEETS}}
 
 ## Task
-Analyze these tweets and identify the BEST 4-6 opportunities for a thoughtful reply.
+Analyze these tweets and identify the BEST 8-10 opportunities for a thoughtful reply.
 For each opportunity, provide:
 1. The tweet number (from the list above)
 2. A suggested reply that follows the style guide
