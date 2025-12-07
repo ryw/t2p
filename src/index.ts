@@ -77,7 +77,7 @@ program
 program
   .command('reply')
   .description('Find tweets to reply to and post replies via X API')
-  .option('--count <n>', 'Number of tweets to analyze from timeline', parseInt, 10)
+  .option('--count <n>', 'Number of tweets to analyze from timeline', parseInt)
   .action(replyCommand);
 
 program
