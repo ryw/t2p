@@ -186,7 +186,8 @@ function editReply(currentReply: string): string {
 function buildReplyPrompt(
   replyTemplate: string,
   styleGuide: string,
-  tweets: Tweet[]
+  tweets: Tweet[],
+  isBasicTier: boolean
 ): string {
   const tweetsText = tweets
     .map((t, i) => {
@@ -195,9 +196,12 @@ function buildReplyPrompt(
     })
     .join('\n\n');
 
+  const targetCount = isBasicTier ? '8-10' : '4-5';
+
   return replyTemplate
     .replace('{{STYLE_GUIDE}}', styleGuide)
-    .replace('{{TWEETS}}', tweetsText);
+    .replace('{{TWEETS}}', tweetsText)
+    .replace('{{TARGET_COUNT}}', targetCount);
 }
 
 function parseReplyOpportunities(
@@ -381,7 +385,7 @@ export async function replyCommand(options: ReplyOptions): Promise<void> {
 
     // Generate reply opportunities
     logger.info('Analyzing tweets for reply opportunities...');
-    const prompt = buildReplyPrompt(replyTemplate, styleGuide, tweets);
+    const prompt = buildReplyPrompt(replyTemplate, styleGuide, tweets, includeMetrics);
     const response = await llm.generate(prompt);
     const opportunities = parseReplyOpportunities(response, tweets);
 
