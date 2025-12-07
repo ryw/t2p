@@ -53,14 +53,10 @@ function formatTimeAgo(dateStr: string): string {
 
 function displayTweetForReply(opportunity: ReplyOpportunity, index: number, total: number): void {
   const { style } = logger;
-  const width = 72;
+  const width = 70;
 
   logger.blank();
-
-  // Header with progress indicator
-  const progress = style.dim(`[${index + 1}/${total}]`);
-  logger.info(`${progress} ${style.bold('Reply Opportunity')}`);
-  logger.info(style.dim(logger.box.line(width)));
+  logger.info(style.dim(`─── [${index + 1}/${total}] ` + '─'.repeat(width - 12)));
 
   // Author info with styling
   const author = opportunity.tweet.authorUsername
@@ -70,45 +66,29 @@ function displayTweetForReply(opportunity: ReplyOpportunity, index: number, tota
     ? style.yellow(` ${formatFollowerCount(opportunity.tweet.authorFollowersCount)}`)
     : '';
   const timeAgo = style.dim(formatTimeAgo(opportunity.tweet.createdAt));
-  logger.info(`${author}${followers} ${style.dim('•')} ${timeAgo}`);
 
-  logger.blank();
+  // Engagement stats inline with author
+  const likes = formatCount(opportunity.tweet.likeCount);
+  const replies = formatCount(opportunity.tweet.replyCount);
+  const retweets = formatCount(opportunity.tweet.retweetCount);
+  const engagementStr = `${style.red('♥')}${style.dim(likes)} ${style.blue('💬')}${style.dim(replies)} ${style.green('↻')}${style.dim(retweets)}`;
 
-  // Tweet content (white/default for readability)
+  logger.info(`${author}${followers} ${style.dim('•')} ${timeAgo}  ${engagementStr}`);
+
+  // Tweet content
   const tweetLines = opportunity.tweet.text.split('\n');
   tweetLines.forEach((line) => {
     logger.info(`  ${line}`);
   });
 
-  logger.blank();
-
-  // Engagement stats with color-coded icons
-  const likes = formatCount(opportunity.tweet.likeCount);
-  const replies = formatCount(opportunity.tweet.replyCount);
-  const retweets = formatCount(opportunity.tweet.retweetCount);
-  logger.info(
-    `  ${style.red('♥')} ${style.dim(likes)}  ${style.blue('💬')} ${style.dim(replies)}  ${style.green('↻')} ${style.dim(retweets)}`
-  );
-
   // URL (dimmed, clickable in Ghostty)
   const tweetUrl = opportunity.tweet.authorUsername
     ? `https://x.com/${opportunity.tweet.authorUsername}/status/${opportunity.tweet.id}`
     : `https://x.com/i/status/${opportunity.tweet.id}`;
-  logger.info(`  ${style.dim(tweetUrl)}`);
-
-  logger.blank();
-  logger.info(style.dim(logger.box.line(width)));
+  logger.info(style.dim(`  ${tweetUrl}`));
 
   // Suggested reply section
-  logger.info(`${style.brightGreen('▶')} ${style.bold('Suggested Reply')}`);
-  logger.blank();
-  const replyLines = opportunity.suggestedReply.split('\n');
-  replyLines.forEach((line) => {
-    logger.info(`  ${style.brightCyan(line)}`);
-  });
-
-  logger.blank();
-  logger.info(style.dim(logger.box.line(width)));
+  logger.info(`${style.brightGreen('▶')} ${style.bold('Reply:')} ${style.brightCyan(opportunity.suggestedReply.split('\n').join(' '))}`);
 }
 
 async function promptForReplyDecision(): Promise<'post' | 'edit' | 'skip' | 'quit'> {
@@ -120,13 +100,8 @@ async function promptForReplyDecision(): Promise<'post' | 'edit' | 'skip' | 'qui
       output: process.stdout,
     });
 
-    // Styled prompt with keyboard hints
-    const prompt = [
-      '',
-      `  ${style.green('⏎ Enter')} post  │  ${style.yellow('e')} edit  │  ${style.dim('n')} skip  │  ${style.red('q')} quit`,
-      '',
-      `  ${style.dim('>')} `,
-    ].join('\n');
+    // Compact prompt
+    const prompt = `  ${style.green('⏎')}post ${style.yellow('e')}dit ${style.dim('n')}skip ${style.red('q')}uit > `;
 
     rl.question(prompt, (answer) => {
       rl.close();
