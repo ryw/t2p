@@ -397,6 +397,16 @@ export async function replyCommand(options: ReplyOptions): Promise<void> {
     // Filter out user's own tweets
     tweets = tweets.filter((t) => t.authorUsername?.toLowerCase() !== user.username.toLowerCase());
 
+    // Filter out tweets we've already replied to
+    const alreadyRepliedTo = await apiService.getMyRecentReplyTargets(100);
+    if (alreadyRepliedTo.size > 0) {
+      const beforeReplyFilter = tweets.length;
+      tweets = tweets.filter((t) => !alreadyRepliedTo.has(t.id));
+      if (beforeReplyFilter > tweets.length) {
+        logger.info(style.dim(`Filtered ${beforeReplyFilter - tweets.length} tweets you already replied to`));
+      }
+    }
+
     // Filter out previously skipped tweets (within 24 hours)
     const skipCache = loadSkipCache(cwd);
     const skippedIds = new Set(Object.keys(skipCache));

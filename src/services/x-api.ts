@@ -250,6 +250,43 @@ export class XApiService {
   }
 
   /**
+   * Get IDs of tweets the user has recently replied to
+   * Used to avoid suggesting replies to tweets we've already replied to
+   */
+  async getMyRecentReplyTargets(maxResults: number = 100): Promise<Set<string>> {
+    const repliedToIds = new Set<string>();
+
+    try {
+      const me = await this.getMe();
+
+      // Fetch user's recent tweets INCLUDING replies
+      const timeline = await this.client.v2.userTimeline(me.id, {
+        max_results: Math.min(maxResults, 100),
+        'tweet.fields': ['referenced_tweets'],
+        // Don't exclude replies - we want them!
+        exclude: ['retweets'],
+      });
+
+      for await (const tweet of timeline) {
+        // Check if this tweet is a reply to another tweet
+        const referencedTweets = (tweet as any).referenced_tweets;
+        if (referencedTweets) {
+          for (const ref of referencedTweets) {
+            if (ref.type === 'replied_to') {
+              repliedToIds.add(ref.id);
+            }
+          }
+        }
+      }
+
+      return repliedToIds;
+    } catch (error: any) {
+      // Return empty set on error - don't block the main flow
+      return repliedToIds;
+    }
+  }
+
+  /**
    * Get rate limit status for key endpoints
    */
   async getRateLimitStatus(): Promise<{
