@@ -1,5 +1,16 @@
 import { TwitterApi, TweetV2, UserV2 } from 'twitter-api-v2';
 
+interface TwitterApiError {
+  code?: number;
+  message?: string;
+  rateLimitError?: boolean;
+  rateLimit?: {
+    limit?: number;
+    remaining?: number;
+    reset?: number;
+  };
+}
+
 export class RateLimitError extends Error {
   resetAt?: Date;
 
@@ -10,7 +21,7 @@ export class RateLimitError extends Error {
   }
 }
 
-function handleApiError(error: any, context: string): never {
+function handleApiError(error: TwitterApiError, context: string): never {
   // Check for rate limit (429)
   if (error.code === 429 || error.message?.includes('429') || error.rateLimitError) {
     const resetTime = error.rateLimit?.reset
@@ -98,8 +109,8 @@ export class XApiService {
       }
 
       return tweets;
-    } catch (error: any) {
-      handleApiError(error, 'Failed to fetch tweets');
+    } catch (error) {
+      handleApiError(error as TwitterApiError, 'Failed to fetch tweets');
     }
   }
 
@@ -170,8 +181,8 @@ export class XApiService {
       }
 
       return tweets;
-    } catch (error: any) {
-      handleApiError(error, 'Failed to fetch home timeline');
+    } catch (error) {
+      handleApiError(error as TwitterApiError, 'Failed to fetch home timeline');
     }
   }
 
@@ -187,8 +198,8 @@ export class XApiService {
         text: result.data.text,
         createdAt: new Date().toISOString(),
       };
-    } catch (error: any) {
-      handleApiError(error, 'Failed to post reply');
+    } catch (error) {
+      handleApiError(error as TwitterApiError, 'Failed to post reply');
     }
   }
 
@@ -199,8 +210,8 @@ export class XApiService {
     try {
       const me = await this.client.v2.me();
       await this.client.v2.like(me.data.id, tweetId);
-    } catch (error: any) {
-      handleApiError(error, 'Failed to like tweet');
+    } catch (error) {
+      handleApiError(error as TwitterApiError, 'Failed to like tweet');
     }
   }
 

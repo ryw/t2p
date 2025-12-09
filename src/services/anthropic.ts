@@ -6,6 +6,7 @@ export class AnthropicService implements LLMService {
   private client: Anthropic;
   private config: T2pConfig;
   private apiKey: string;
+  private lastError: Error | null = null;
 
   constructor(config: T2pConfig) {
     this.config = config;
@@ -42,7 +43,7 @@ export class AnthropicService implements LLMService {
       return true;
     } catch (error) {
       // Store the error for better reporting
-      (this as any).lastError = error;
+      this.lastError = error as Error;
       return false;
     }
   }
@@ -50,7 +51,7 @@ export class AnthropicService implements LLMService {
   async ensureAvailable(): Promise<void> {
     const available = await this.isAvailable();
     if (!available) {
-      const error = (this as any).lastError as Error;
+      const error = this.lastError;
       let errorMsg = 'Anthropic API is not available.\n';
 
       if (error) {

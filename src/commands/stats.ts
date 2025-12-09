@@ -23,6 +23,14 @@ interface TweetWithMetrics {
   engagementRate: number;
 }
 
+interface FetchError {
+  isRateLimit: boolean;
+  resetTime?: Date;
+  message?: string;
+  code?: number;
+  details?: string;
+}
+
 function formatNumber(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
@@ -153,22 +161,23 @@ export async function statsCommand(): Promise<void> {
           timestamp: Date.now(),
           userId: me.id,
         }));
-      } catch (error: any) {
-        if (error.isRateLimit) {
+      } catch (error) {
+        const fetchError = error as FetchError;
+        if (fetchError.isRateLimit) {
           // Try to use stale cache
           if (cachedData && cachedData.userId === me.id) {
             tweets = cachedData.tweets;
             usingCache = true;
             const age = Math.round((Date.now() - cachedData.timestamp) / 60000);
             logger.warn(`⏳ Rate limited - using cached data from ${age} min ago`);
-            if (error.resetTime) {
-              const waitMins = Math.ceil((error.resetTime.getTime() - Date.now()) / 60000);
+            if (fetchError.resetTime) {
+              const waitMins = Math.ceil((fetchError.resetTime.getTime() - Date.now()) / 60000);
               logger.info(style.dim(`   Rate limit resets in ${waitMins} minute${waitMins !== 1 ? 's' : ''}`));
             }
           } else {
             logger.error('⏳ X API rate limit reached and no cached data available');
-            if (error.resetTime) {
-              const resetDate = new Date(error.resetTime);
+            if (fetchError.resetTime) {
+              const resetDate = new Date(fetchError.resetTime);
               logger.info(style.dim(`   Resets at ${resetDate.toLocaleTimeString()}`));
             } else {
               logger.info(style.dim('   Try again in ~15 minutes'));
@@ -177,9 +186,9 @@ export async function statsCommand(): Promise<void> {
           }
         } else {
           // Show detailed error for debugging
-          logger.error(`Failed to fetch tweets: ${error.message || 'Unknown error'}`);
-          if (error.code) logger.info(style.dim(`   Error code: ${error.code}`));
-          if (error.details && error.details !== '{}') logger.info(style.dim(`   Details: ${error.details}`));
+          logger.error(`Failed to fetch tweets: ${fetchError.message || 'Unknown error'}`);
+          if (fetchError.code) logger.info(style.dim(`   Error code: ${fetchError.code}`));
+          if (fetchError.details && fetchError.details !== '{}') logger.info(style.dim(`   Details: ${fetchError.details}`));
           process.exit(1);
         }
       }
@@ -367,21 +376,22 @@ async function getRecentTweetsWithMetrics(accessToken: string, userId: string, c
     }
 
     return tweets;
-  } catch (error: any) {
+  } catch (error) {
     // Check for rate limit
-    if (error.code === 429 || error.message?.includes('429') || error.rateLimitError) {
-      const resetTime = error.rateLimit?.reset
-        ? new Date(error.rateLimit.reset * 1000)
+    const err = error as { code?: number; message?: string; rateLimitError?: boolean; rateLimit?: { reset?: number }; data?: unknown; errors?: unknown };
+    if (err.code === 429 || err.message?.includes('429') || err.rateLimitError) {
+      const resetTime = err.rateLimit?.reset
+        ? new Date(err.rateLimit.reset * 1000)
         : undefined;
-      throw { isRateLimit: true, resetTime, message: 'Rate limit reached' };
+      throw { isRateLimit: true, resetTime, message: 'Rate limit reached' } as FetchError;
     }
     // Pass through other errors with details
     throw {
       isRateLimit: false,
-      message: error.message || 'Unknown error',
-      code: error.code,
-      details: JSON.stringify(error.data || error.errors || {}, null, 2)
-    };
+      message: err.message || 'Unknown error',
+      code: err.code,
+      details: JSON.stringify(err.data || err.errors || {}, null, 2)
+    } as FetchError;
   }
 }
 

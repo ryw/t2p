@@ -4,6 +4,7 @@ import open from 'open';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import type { XTokens, XTokensStore } from '../types/x-tokens.js';
+import { logger } from '../utils/logger.js';
 
 const REDIRECT_URI = 'http://127.0.0.1:3000/callback';
 const SCOPES = ['tweet.read', 'tweet.write', 'users.read', 'like.write', 'offline.access'];
@@ -44,9 +45,10 @@ export class XAuthService {
         codeVerifier,
         redirectUri: REDIRECT_URI,
       });
-    } catch (error: any) {
+    } catch (error) {
       // Provide more helpful error messages for common issues
-      if (error.code === 401 || error.message?.includes('401')) {
+      const err = error as { code?: number; message?: string };
+      if (err.code === 401 || err.message?.includes('401')) {
         throw new Error(
           'X API authentication failed (401). This usually means:\n' +
           '  1. The Client ID is invalid or the app was deleted\n' +
@@ -138,7 +140,7 @@ export class XAuthService {
       });
 
       server.listen(3000, () => {
-        console.log('→ Opening browser for authentication...');
+        logger.step('Opening browser for authentication...');
         open(authUrl);
       });
 

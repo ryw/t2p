@@ -59,6 +59,12 @@ interface ReplyOpportunity {
   reasoning: string;
 }
 
+interface ParsedReplyItem {
+  tweetNumber: number;
+  suggestedReply?: string;
+  reasoning?: string;
+}
+
 function formatFollowerCount(count?: number): string {
   if (!count) return '';
   if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
@@ -182,7 +188,6 @@ function editReply(currentReply: string): string {
     // Spawn editor synchronously
     const result = spawnSync(editor, [tmpFile], {
       stdio: 'inherit',
-      shell: true,
     });
 
     if (result.status !== 0) {
@@ -253,18 +258,18 @@ function parseReplyOpportunities(
       jsonStr = jsonMatch[0];
     }
 
-    const parsed = JSON.parse(jsonStr);
+    const parsed: ParsedReplyItem[] = JSON.parse(jsonStr);
 
     if (!Array.isArray(parsed)) {
       return [];
     }
 
     return parsed
-      .filter((item: any) => {
+      .filter((item) => {
         const tweetIndex = item.tweetNumber - 1;
         return tweetIndex >= 0 && tweetIndex < tweets.length;
       })
-      .map((item: any) => ({
+      .map((item) => ({
         tweet: tweets[item.tweetNumber - 1],
         suggestedReply: item.suggestedReply || '',
         reasoning: item.reasoning || '',
