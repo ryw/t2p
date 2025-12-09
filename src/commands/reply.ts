@@ -259,12 +259,18 @@ function parseReplyOpportunities(
       return [];
     }
 
-    return parsed
-      .filter((item: any) => {
+    interface ParsedReply {
+      tweetNumber: number;
+      suggestedReply?: string;
+      reasoning?: string;
+    }
+
+    return (parsed as ParsedReply[])
+      .filter((item) => {
         const tweetIndex = item.tweetNumber - 1;
         return tweetIndex >= 0 && tweetIndex < tweets.length;
       })
-      .map((item: any) => ({
+      .map((item) => ({
         tweet: tweets[item.tweetNumber - 1],
         suggestedReply: item.suggestedReply || '',
         reasoning: item.reasoning || '',

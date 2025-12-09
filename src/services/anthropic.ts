@@ -6,6 +6,7 @@ export class AnthropicService implements LLMService {
   private client: Anthropic;
   private config: T2pConfig;
   private apiKey: string;
+  private lastError: Error | null = null;
 
   constructor(config: T2pConfig) {
     this.config = config;
@@ -22,7 +23,7 @@ export class AnthropicService implements LLMService {
     // Validate API key format
     if (!this.apiKey.startsWith('sk-ant-')) {
       throw new Error(
-        `Invalid Anthropic API key format. Key should start with 'sk-ant-'. Got: ${this.apiKey.substring(0, 10)}...`
+        `Invalid Anthropic API key format. Key should start with 'sk-ant-'.`
       );
     }
 
@@ -42,7 +43,7 @@ export class AnthropicService implements LLMService {
       return true;
     } catch (error) {
       // Store the error for better reporting
-      (this as any).lastError = error;
+      this.lastError = error instanceof Error ? error : new Error(String(error));
       return false;
     }
   }
@@ -50,7 +51,7 @@ export class AnthropicService implements LLMService {
   async ensureAvailable(): Promise<void> {
     const available = await this.isAvailable();
     if (!available) {
-      const error = (this as any).lastError as Error;
+      const error = this.lastError;
       let errorMsg = 'Anthropic API is not available.\n';
 
       if (error) {
@@ -59,7 +60,6 @@ export class AnthropicService implements LLMService {
         if (errorStr.includes('401') || errorStr.includes('authentication')) {
           errorMsg += '✗ Authentication failed: Invalid API key\n';
           errorMsg += `  - Check your API key in .env file or environment\n`;
-          errorMsg += `  - Current key starts with: ${this.apiKey.substring(0, 15)}...\n`;
         } else if (errorStr.includes('model')) {
           errorMsg += `✗ Model not found: ${this.getModelName()}\n`;
           errorMsg += '  - Check your model name in .shippostrc.json\n';

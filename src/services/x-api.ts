@@ -1,4 +1,5 @@
 import { TwitterApi, TweetV2, UserV2 } from 'twitter-api-v2';
+import type { XApiError, XUserWithMetrics, XTweetWithMetrics } from '../types/x-tokens.js';
 
 export class RateLimitError extends Error {
   resetAt?: Date;
@@ -10,11 +11,13 @@ export class RateLimitError extends Error {
   }
 }
 
-function handleApiError(error: any, context: string): never {
+function handleApiError(error: unknown, context: string): never {
+  const apiError = error as XApiError;
+
   // Check for rate limit (429)
-  if (error.code === 429 || error.message?.includes('429') || error.rateLimitError) {
-    const resetTime = error.rateLimit?.reset
-      ? new Date(error.rateLimit.reset * 1000)
+  if (apiError.code === 429 || apiError.message?.includes('429') || apiError.rateLimitError) {
+    const resetTime = apiError.rateLimit?.reset
+      ? new Date(apiError.rateLimit.reset * 1000)
       : undefined;
 
     let message = `⏳ X API rate limit reached`;
@@ -30,15 +33,15 @@ function handleApiError(error: any, context: string): never {
   }
 
   // Check for auth errors (401, 403)
-  if (error.code === 401 || error.code === 403) {
+  if (apiError.code === 401 || apiError.code === 403) {
     throw new Error(
-      `🔐 X API authentication error (${error.code})\n` +
+      `🔐 X API authentication error (${apiError.code})\n` +
       `   Try: rm .shippost-tokens.json && ship reply`
     );
   }
 
   // Generic error
-  throw new Error(`${context}: ${error.message || 'Unknown error'}`);
+  throw new Error(`${context}: ${apiError.message || 'Unknown error'}`);
 }
 
 export interface Tweet {
@@ -98,7 +101,7 @@ export class XApiService {
       }
 
       return tweets;
-    } catch (error: any) {
+    } catch (error) {
       handleApiError(error, 'Failed to fetch tweets');
     }
   }
@@ -137,19 +140,21 @@ export class XApiService {
       const authorMap = new Map<string, { username: string; name: string; followersCount?: number }>();
       if (timeline.includes?.users) {
         for (const user of timeline.includes.users) {
+          const userWithMetrics = user as unknown as XUserWithMetrics;
           authorMap.set(user.id, {
             username: user.username,
             name: user.name,
-            followersCount: (user as any).public_metrics?.followers_count,
+            followersCount: userWithMetrics.public_metrics?.followers_count,
           });
         }
       }
 
       for await (const tweet of timeline) {
         const author = tweet.author_id ? authorMap.get(tweet.author_id) : undefined;
-        const metrics = (tweet as any).public_metrics;
+        const tweetWithMetrics = tweet as unknown as XTweetWithMetrics;
+        const metrics = tweetWithMetrics.public_metrics;
         // Use note_tweet.text for full text of long tweets, fallback to text
-        const noteTweet = (tweet as any).note_tweet;
+        const noteTweet = tweetWithMetrics.note_tweet;
         const fullText = noteTweet?.text || tweet.text;
         tweets.push({
           id: tweet.id,
@@ -170,7 +175,7 @@ export class XApiService {
       }
 
       return tweets;
-    } catch (error: any) {
+    } catch (error) {
       handleApiError(error, 'Failed to fetch home timeline');
     }
   }
@@ -187,7 +192,7 @@ export class XApiService {
         text: result.data.text,
         createdAt: new Date().toISOString(),
       };
-    } catch (error: any) {
+    } catch (error) {
       handleApiError(error, 'Failed to post reply');
     }
   }
@@ -199,7 +204,7 @@ export class XApiService {
     try {
       const me = await this.client.v2.me();
       await this.client.v2.like(me.data.id, tweetId);
-    } catch (error: any) {
+    } catch (error) {
       handleApiError(error, 'Failed to like tweet');
     }
   }
@@ -231,7 +236,8 @@ export class XApiService {
 
       for await (const tweet of timeline) {
         const tweetDate = new Date(tweet.created_at || '').toISOString().split('T')[0];
-        const impressions = (tweet as any).organic_metrics?.impression_count || 0;
+        const tweetWithMetrics = tweet as unknown as XTweetWithMetrics;
+        const impressions = tweetWithMetrics.organic_metrics?.impression_count || 0;
         dailyMap.set(tweetDate, (dailyMap.get(tweetDate) || 0) + impressions);
       }
 
@@ -243,7 +249,7 @@ export class XApiService {
       const totalImpressions = dailyImpressions.reduce((sum, d) => sum + d.impressions, 0);
 
       return { dailyImpressions, totalImpressions };
-    } catch (error: any) {
+    } catch {
       // Return empty stats if we can't fetch (might not have access)
       return { dailyImpressions: [], totalImpressions: 0 };
     }
@@ -269,7 +275,8 @@ export class XApiService {
 
       for await (const tweet of timeline) {
         // Check if this tweet is a reply to another tweet
-        const referencedTweets = (tweet as any).referenced_tweets;
+        const tweetWithMetrics = tweet as unknown as XTweetWithMetrics;
+        const referencedTweets = tweetWithMetrics.referenced_tweets;
         if (referencedTweets) {
           for (const ref of referencedTweets) {
             if (ref.type === 'replied_to') {
@@ -280,7 +287,7 @@ export class XApiService {
       }
 
       return repliedToIds;
-    } catch (error: any) {
+    } catch {
       // Return empty set on error - don't block the main flow
       return repliedToIds;
     }
@@ -302,30 +309,32 @@ export class XApiService {
 
     try {
       // Check user endpoint rate limit
-      const meResult = await this.client.v2.me() as any;
-      if (meResult.rateLimit) {
+      const meResult = await this.client.v2.me();
+      const meRateLimit = (meResult as { rateLimit?: XApiError['rateLimit'] }).rateLimit;
+      if (meRateLimit) {
         status.user = {
-          limit: meResult.rateLimit.limit,
-          remaining: meResult.rateLimit.remaining,
-          reset: new Date(meResult.rateLimit.reset * 1000),
+          limit: meRateLimit.limit,
+          remaining: meRateLimit.remaining,
+          reset: new Date(meRateLimit.reset * 1000),
         };
       }
     } catch {
-      // Ignore errors
+      // Ignore errors - rate limit info is optional
     }
 
     try {
       // Check timeline endpoint rate limit (minimal request)
-      const timelineResult = await this.client.v2.homeTimeline({ max_results: 10 }) as any;
-      if (timelineResult.rateLimit) {
+      const timelineResult = await this.client.v2.homeTimeline({ max_results: 10 });
+      const timelineRateLimit = (timelineResult as { rateLimit?: XApiError['rateLimit'] }).rateLimit;
+      if (timelineRateLimit) {
         status.timeline = {
-          limit: timelineResult.rateLimit.limit,
-          remaining: timelineResult.rateLimit.remaining,
-          reset: new Date(timelineResult.rateLimit.reset * 1000),
+          limit: timelineRateLimit.limit,
+          remaining: timelineRateLimit.remaining,
+          reset: new Date(timelineRateLimit.reset * 1000),
         };
       }
     } catch {
-      // Ignore errors
+      // Ignore errors - rate limit info is optional
     }
 
     return status;

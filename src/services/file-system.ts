@@ -4,6 +4,7 @@ import { randomUUID } from 'crypto';
 import type { Post } from '../types/post.js';
 import type { T2pConfig } from '../types/config.js';
 import type { T2pState, ProcessedFileInfo } from '../types/state.js';
+import type { ContentStrategy } from '../types/strategy.js';
 import { DEFAULT_CONFIG } from '../types/config.js';
 import { FileSystemError, ConfigError, NotInitializedError } from '../utils/errors.js';
 import { validateConfig } from '../utils/validation.js';
@@ -75,7 +76,7 @@ export class FileSystemService {
     }
   }
 
-  loadStrategies(): any[] {
+  loadStrategies(): ContentStrategy[] {
     const strategiesPath = join(this.cwd, 'strategies.json');
 
     if (!existsSync(strategiesPath)) {
@@ -91,7 +92,7 @@ export class FileSystemService {
         throw new Error('Strategies file must contain a JSON array');
       }
 
-      return strategies;
+      return strategies as ContentStrategy[];
     } catch (error) {
       throw new FileSystemError(`Failed to load strategies: ${(error as Error).message}`);
     }

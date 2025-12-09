@@ -44,9 +44,10 @@ export class XAuthService {
         codeVerifier,
         redirectUri: REDIRECT_URI,
       });
-    } catch (error: any) {
+    } catch (error) {
       // Provide more helpful error messages for common issues
-      if (error.code === 401 || error.message?.includes('401')) {
+      const err = error as { code?: number; message?: string };
+      if (err.code === 401 || err.message?.includes('401')) {
         throw new Error(
           'X API authentication failed (401). This usually means:\n' +
           '  1. The Client ID is invalid or the app was deleted\n' +
