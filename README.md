@@ -11,7 +11,7 @@ shippost is a CLI tool that processes meeting transcripts, notes, and other writ
 ## Features
 
 - ✅ **Flexible LLM Providers** — Choose between Ollama (local, privacy-first) or Anthropic Claude (cloud-based, high-quality)
-- ✅ **Content Strategies** — 75 proven post formats for maximum variety and engagement
+- ✅ **Content Strategies** — 64 proven post formats for maximum variety and engagement
 - ✅ **Customizable Style** — Define your brand voice and posting style
 - ✅ **Community Examples** — Learn from real style.md examples shared by other users
 - ✅ **X Post Analysis** — Auto-generate style guides from your X (Twitter) posts
@@ -135,11 +135,11 @@ ship work --model llama2 --count 10 --verbose
 ```
 
 **What it does:**
-1. Validates environment (checks for Ollama and required files)
+1. Validates environment (checks for LLM provider and required files)
 2. Loads your style guide and generation instructions
 3. Scans `input/` for `.txt` and `.md` files
 4. **Skips files that have already been processed** (unless `--force` is used)
-5. Processes each file through Ollama
+5. Processes each file through your configured LLM (Ollama or Claude)
 6. Parses generated posts and saves to `posts.jsonl`
 7. Tracks processed files in `.ship-state.json` to prevent duplicates
 8. Displays summary with file counts and any errors
@@ -152,7 +152,7 @@ ship automatically tracks which files have been processed to prevent generating 
 
 ### `ship analyze-x`
 
-Generate a personalized style guide by analyzing your X (Twitter) posts. Uses X API v2 (free tier) to fetch your recent tweets and Ollama to analyze your writing patterns.
+Generate a personalized style guide by analyzing your X (Twitter) posts. Uses X API v2 (free tier) to fetch your recent tweets and your configured LLM to analyze your writing patterns.
 
 **Options:**
 - `--count <n>` — Number of tweets to fetch (default: 33, max: 100)
@@ -178,7 +178,7 @@ ship analyze-x --setup
 1. Configures X API OAuth 2.0 authentication (first time only)
 2. Opens browser for you to authorize the app
 3. Fetches your recent tweets (default: 33)
-4. Analyzes writing patterns with Ollama
+4. Analyzes writing patterns with your configured LLM (Ollama or Claude)
 5. Generates and saves a personalized style guide to `prompts/style-from-analysis.md`
 
 **Note:** The analysis is saved to `style-from-analysis.md` (not `style.md`) so you can review it first and merge insights into your main style guide as desired.
@@ -291,9 +291,9 @@ Replies follow the "Reply Style" section in `prompts/style.md`:
 
 **X API Tiers:**
 - **Free tier** (default): Basic timeline fetch, limited to ~15 requests per 15 minutes
-- **Basic tier** ($100/month): Fetches follower counts, sorts by influence & recency
+- **Basic tier** ($200/month): Fetches follower counts, sorts by influence & recency
 
-Configure your tier in `.shiprc.json`:
+Configure your tier in `.shippostrc.json`:
 ```json
 {
   "x": {
@@ -317,7 +317,7 @@ The free tier has strict limits. If you hit 429 errors:
 If you get 403 errors when posting:
 1. Go to [X Developer Portal](https://developer.x.com/en/portal/dashboard)
 2. Change app permissions to "Read and write"
-3. Delete `.ship-tokens.json` to force re-auth
+3. Delete `.shippost-tokens.json` to force re-auth
 4. Run `ship reply` again
 
 ### `ship review`
@@ -357,9 +357,70 @@ ship review --min-score 70
 - `rejected` — Marked as low quality, filtered out
 - `published` — Reserved for future use
 
+### `ship x-status`
+
+Check your X API rate limit status and account information.
+
+```bash
+ship x-status
+```
+
+**What it displays:**
+- Connected account username
+- Current API tier (free or basic)
+- Rate limit status with visual progress bars
+- Time until rate limits reset
+- Monthly limits based on your tier
+
+### `ship stats`
+
+Comprehensive X stats dashboard showing your account metrics. **Requires X API Basic tier ($200/month).**
+
+```bash
+ship stats
+```
+
+**What it displays:**
+- Account overview (followers, following, tweet count)
+- Posting activity (24h, 7d, 30d)
+- Impressions with daily trends (sparklines)
+- 90-day goal progress toward 5M impressions
+- Engagement metrics (likes, replies, retweets, quotes, bookmarks)
+- Best posting times based on your engagement data
+- Top performing post of the week
+
+**Note:** Stats are cached for 1 hour to conserve API rate limits. The dashboard uses visual formatting with progress bars and sparklines.
+
+### `ship sync-prompts`
+
+Sync your local prompts with the latest package defaults.
+
+**Options:**
+- `--force` — Update all prompts without prompting
+
+```bash
+# Compare and selectively update prompts
+ship sync-prompts
+
+# Force update all prompts to defaults
+ship sync-prompts --force
+```
+
+**What it does:**
+1. Compares your local `prompts/` files with package templates
+2. Shows which prompts are up to date, outdated, or missing
+3. Displays a diff for changed files
+4. Prompts you to update each changed file individually
+5. Creates any missing prompt files
+
+**When to use:**
+- After upgrading shippost to get new prompt improvements
+- To restore a prompt you accidentally deleted
+- To see what's changed in the default prompts
+
 ## Configuration
 
-Configuration is stored in `.shiprc.json`:
+Configuration is stored in `.shippostrc.json`:
 
 **Using Ollama (default):**
 ```json
@@ -392,7 +453,7 @@ Configuration is stored in `.shiprc.json`:
     "provider": "anthropic"
   },
   "anthropic": {
-    "model": "claude-sonnet-4-5-20250929",
+    "model": "claude-sonnet-4-5-20250514",
     "maxTokens": 4096
   },
   "generation": {
@@ -458,7 +519,7 @@ your-project/
 │   └── reply.md              # Reply opportunity analysis (advanced)
 ├── strategies.json           # Content strategies (CUSTOMIZABLE!)
 ├── posts.jsonl               # Generated posts (created after first run)
-└── .shiprc.json               # Configuration
+└── .shippostrc.json           # Configuration
 ```
 
 ## Output Format
@@ -494,7 +555,7 @@ Generated posts are stored in `posts.jsonl` as newline-delimited JSON:
     }
   },
   "timestamp":"2024-01-15T10:30:00.000Z",
-  "status":"draft"
+  "status":"new"
 }
 ```
 
@@ -591,7 +652,7 @@ ship work
 
 **List Available Strategies**
 ```bash
-# See all 75 strategies
+# See all 64 strategies
 ship work --list-strategies
 
 # Filter by category
@@ -690,7 +751,7 @@ Edit the `prompt` field to change how posts are generated. For example, you migh
 
 ### Configuration
 
-Fine-tune strategy behavior in `.shiprc.json`:
+Fine-tune strategy behavior in `.shippostrc.json`:
 
 ```json
 {
@@ -928,10 +989,10 @@ When using Ollama:
 - Experiment with different models using `--model` flag
 
 When using Anthropic Claude:
-- `claude-sonnet-4-5-20250929` — Smartest model for complex agents and coding (recommended)
-- `claude-haiku-4-5-20251001` — Fastest model with near-frontier intelligence
-- `claude-opus-4-5-20251101` — Premium model combining maximum intelligence with practical performance
-- `claude-opus-4-1-20250805` — Exceptional for specialized reasoning tasks
+- `claude-sonnet-4-5-20250514` — Best balance of intelligence and speed (recommended)
+- `claude-3-5-sonnet-20241022` — Previous generation, still excellent
+- `claude-3-5-haiku-20241022` — Fastest model for quick tasks
+- `claude-3-opus-20240229` — Most capable for complex reasoning
 - See [ANTHROPIC_SETUP.md](ANTHROPIC_SETUP.md) for pricing details
 
 **Output Management**
@@ -1012,7 +1073,7 @@ export ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
 
 ### Configuration error
 
-Ensure your `.shiprc.json` is valid JSON and includes the required fields:
+Ensure your `.shippostrc.json` is valid JSON and includes the required fields:
 
 ```json
 {
@@ -1051,17 +1112,38 @@ src/
 ├── index.ts              # CLI entry point with Commander
 ├── commands/
 │   ├── init.ts           # ship init implementation
-│   └── work.ts           # ship work implementation
+│   ├── work.ts           # ship work - post generation
+│   ├── posts.ts          # ship posts - view posts
+│   ├── review.ts         # ship review - interactive review
+│   ├── analyze-x.ts      # ship analyze-x - style analysis
+│   ├── reply.ts          # ship reply - reply guy mode
+│   ├── x-status.ts       # ship x-status - rate limit check
+│   ├── stats.ts          # ship stats - X metrics dashboard
+│   └── sync-prompts.ts   # ship sync-prompts - update prompts
 ├── types/
 │   ├── config.ts         # Configuration types
-│   └── post.ts           # Post schema
+│   ├── post.ts           # Post schema
+│   ├── strategy.ts       # Content strategy types
+│   ├── state.ts          # Project state tracking
+│   └── x-tokens.ts       # X API token storage
 ├── services/
 │   ├── file-system.ts    # File I/O and JSONL operations
-│   └── ollama.ts         # Ollama API integration
+│   ├── ollama.ts         # Ollama API integration
+│   ├── anthropic.ts      # Anthropic Claude integration
+│   ├── llm-factory.ts    # LLM provider factory
+│   ├── llm-service.ts    # Base LLM service interface
+│   ├── x-api.ts          # X API v2 integration
+│   ├── x-auth.ts         # X OAuth 2.0 authentication
+│   ├── typefully.ts      # Typefully draft creation
+│   ├── strategy-selector.ts  # Intelligent strategy selection
+│   └── content-analyzer.ts   # Content analysis for strategies
 └── utils/
     ├── errors.ts         # Custom error classes
     ├── logger.ts         # Console output (✓, ✗, →)
-    └── validation.ts     # Config and project validation
+    ├── validation.ts     # Config and project validation
+    ├── banger-eval.ts    # Viral potential scoring
+    ├── style-analysis.ts # Style guide generation
+    └── readline.ts       # Command-line input utilities
 ```
 
 ### Issue Tracking
