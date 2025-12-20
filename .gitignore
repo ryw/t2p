@@ -33,3 +33,6 @@ coverage/
 
 # Claude Code
 .claude/settings.local.json
+
+# Beads local state
+.beads/.local_version
