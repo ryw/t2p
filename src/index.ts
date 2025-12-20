@@ -17,6 +17,7 @@ import { replyCommand } from './commands/reply.js';
 import { xStatusCommand } from './commands/x-status.js';
 import { statsCommand } from './commands/stats.js';
 import { syncPromptsCommand } from './commands/sync-prompts.js';
+import { lastInputCommand } from './commands/last-input.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -95,5 +96,10 @@ program
   .description('Sync local prompts with package defaults')
   .option('--force', 'Update all prompts without prompting')
   .action(syncPromptsCommand);
+
+program
+  .command('last-input')
+  .description('Show when the last transcript was added to input/')
+  .action(lastInputCommand);
 
 program.parse();

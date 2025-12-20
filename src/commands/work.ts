@@ -556,7 +556,7 @@ export async function workCommand(options: WorkOptions): Promise<void> {
     logger.blank();
     logger.info('Next steps:');
     logger.info('- Review posts in posts.jsonl');
-    logger.info('- Future: Run `ship stage` to publish (coming soon)');
+    logger.info('- Run `ship review` to review and stage posts');
   }
   } catch (error) {
     logger.blank();
