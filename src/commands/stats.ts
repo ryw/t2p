@@ -6,6 +6,7 @@ import { XApiService } from '../services/x-api.js';
 import { logger } from '../utils/logger.js';
 import { isShippostProject } from '../utils/validation.js';
 import { NotInitializedError } from '../utils/errors.js';
+import type { UserV2WithMetrics, TweetV2WithMetrics } from '../types/x-api-responses.js';
 
 const STATS_CACHE_FILE = '.shippost-stats-cache.json';
 const STATS_CACHE_MAX_AGE = 60 * 60 * 1000; // 1 hour (Basic tier has strict rate limits)
@@ -306,7 +307,8 @@ async function getMeWithMetrics(accessToken: string): Promise<{ followers: numbe
     const { TwitterApi } = await import('twitter-api-v2');
     const client = new TwitterApi(accessToken);
     const result = await client.v2.me({ 'user.fields': ['public_metrics'] });
-    const metrics = (result.data as any).public_metrics;
+    const userWithMetrics = result.data as UserV2WithMetrics;
+    const metrics = userWithMetrics.public_metrics;
     return {
       followers: metrics?.followers_count || 0,
       following: metrics?.following_count || 0,
@@ -340,16 +342,17 @@ async function getRecentTweetsWithMetrics(accessToken: string, userId: string, c
       }
 
       for (const tweet of timeline.data.data) {
-        const organic = (tweet as any).organic_metrics || {};
-        const pub = (tweet as any).public_metrics || {};
-        const nonPub = (tweet as any).non_public_metrics || {};
+        const tweetWithMetrics = tweet as TweetV2WithMetrics;
+        const organic = tweetWithMetrics.organic_metrics;
+        const pub = tweetWithMetrics.public_metrics;
+        const nonPub = tweetWithMetrics.non_public_metrics;
 
-        const impressions = organic.impression_count || 0;
-        const likes = pub.like_count || 0;
-        const replies = pub.reply_count || 0;
-        const retweets = pub.retweet_count || 0;
-        const quotes = pub.quote_count || 0;
-        const bookmarks = nonPub.bookmark_count || pub.bookmark_count || 0;
+        const impressions = organic?.impression_count || 0;
+        const likes = pub?.like_count || 0;
+        const replies = pub?.reply_count || 0;
+        const retweets = pub?.retweet_count || 0;
+        const quotes = pub?.quote_count || 0;
+        const bookmarks = nonPub?.bookmark_count || pub?.bookmark_count || 0;
 
         const totalEngagement = likes + replies + retweets + quotes;
         const engagementRate = impressions > 0 ? (totalEngagement / impressions) * 100 : 0;

@@ -1,4 +1,9 @@
 import { TwitterApi, TweetV2, UserV2 } from 'twitter-api-v2';
+import type {
+  TweetV2WithMetrics,
+  UserV2WithMetrics,
+  RateLimitInfo,
+} from '../types/x-api-responses.js';
 
 interface TwitterApiError {
   code?: number;
@@ -148,19 +153,21 @@ export class XApiService {
       const authorMap = new Map<string, { username: string; name: string; followersCount?: number }>();
       if (timeline.includes?.users) {
         for (const user of timeline.includes.users) {
+          const userWithMetrics = user as UserV2WithMetrics;
           authorMap.set(user.id, {
             username: user.username,
             name: user.name,
-            followersCount: (user as any).public_metrics?.followers_count,
+            followersCount: userWithMetrics.public_metrics?.followers_count,
           });
         }
       }
 
       for await (const tweet of timeline) {
+        const tweetWithMetrics = tweet as TweetV2WithMetrics;
         const author = tweet.author_id ? authorMap.get(tweet.author_id) : undefined;
-        const metrics = (tweet as any).public_metrics;
+        const metrics = tweetWithMetrics.public_metrics;
         // Use note_tweet.text for full text of long tweets, fallback to text
-        const noteTweet = (tweet as any).note_tweet;
+        const noteTweet = tweetWithMetrics.note_tweet;
         const fullText = noteTweet?.text || tweet.text;
         tweets.push({
           id: tweet.id,
@@ -241,8 +248,9 @@ export class XApiService {
       const dailyMap = new Map<string, number>();
 
       for await (const tweet of timeline) {
+        const tweetWithMetrics = tweet as TweetV2WithMetrics;
         const tweetDate = new Date(tweet.created_at || '').toISOString().split('T')[0];
-        const impressions = (tweet as any).organic_metrics?.impression_count || 0;
+        const impressions = tweetWithMetrics.organic_metrics?.impression_count || 0;
         dailyMap.set(tweetDate, (dailyMap.get(tweetDate) || 0) + impressions);
       }
 
@@ -254,7 +262,7 @@ export class XApiService {
       const totalImpressions = dailyImpressions.reduce((sum, d) => sum + d.impressions, 0);
 
       return { dailyImpressions, totalImpressions };
-    } catch (error: any) {
+    } catch {
       // Return empty stats if we can't fetch (might not have access)
       return { dailyImpressions: [], totalImpressions: 0 };
     }
@@ -280,7 +288,8 @@ export class XApiService {
 
       for await (const tweet of timeline) {
         // Check if this tweet is a reply to another tweet
-        const referencedTweets = (tweet as any).referenced_tweets;
+        const tweetWithMetrics = tweet as TweetV2WithMetrics;
+        const referencedTweets = tweetWithMetrics.referenced_tweets;
         if (referencedTweets) {
           for (const ref of referencedTweets) {
             if (ref.type === 'replied_to') {
@@ -291,7 +300,7 @@ export class XApiService {
       }
 
       return repliedToIds;
-    } catch (error: any) {
+    } catch {
       // Return empty set on error - don't block the main flow
       return repliedToIds;
     }
@@ -313,12 +322,13 @@ export class XApiService {
 
     try {
       // Check user endpoint rate limit
-      const meResult = await this.client.v2.me() as any;
-      if (meResult.rateLimit) {
+      const meResult = await this.client.v2.me();
+      const meRateLimit = (meResult as unknown as { rateLimit?: RateLimitInfo }).rateLimit;
+      if (meRateLimit) {
         status.user = {
-          limit: meResult.rateLimit.limit,
-          remaining: meResult.rateLimit.remaining,
-          reset: new Date(meResult.rateLimit.reset * 1000),
+          limit: meRateLimit.limit,
+          remaining: meRateLimit.remaining,
+          reset: new Date(meRateLimit.reset * 1000),
         };
       }
     } catch {
@@ -327,12 +337,13 @@ export class XApiService {
 
     try {
       // Check timeline endpoint rate limit (minimal request)
-      const timelineResult = await this.client.v2.homeTimeline({ max_results: 10 }) as any;
-      if (timelineResult.rateLimit) {
+      const timelineResult = await this.client.v2.homeTimeline({ max_results: 10 });
+      const timelineRateLimit = (timelineResult as unknown as { rateLimit?: RateLimitInfo }).rateLimit;
+      if (timelineRateLimit) {
         status.timeline = {
-          limit: timelineResult.rateLimit.limit,
-          remaining: timelineResult.rateLimit.remaining,
-          reset: new Date(timelineResult.rateLimit.reset * 1000),
+          limit: timelineRateLimit.limit,
+          remaining: timelineRateLimit.remaining,
+          reset: new Date(timelineRateLimit.reset * 1000),
         };
       }
     } catch {
