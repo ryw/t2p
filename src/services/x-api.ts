@@ -397,12 +397,13 @@ export class XApiService {
         }];
       }
 
-      // Search for all tweets in this conversation by this author
+      // Search for all tweets in this conversation by this author (max 100)
+      const MAX_THREAD_TWEETS = 100;
       const searchResult = await this.client.v2.search(
         `conversation_id:${conversationId} from:${authorId}`,
         {
           'tweet.fields': ['created_at', 'text', 'public_metrics', 'note_tweet', 'author_id'],
-          max_results: 100,
+          max_results: MAX_THREAD_TWEETS,
         }
       );
 
