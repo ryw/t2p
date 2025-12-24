@@ -25,6 +25,165 @@ interface BlogFromXOptions {
   setup?: boolean;
 }
 
+type Framework = 'hugo' | 'jekyll' | 'astro' | 'nextjs' | 'gatsby' | 'eleventy' | 'unknown';
+
+interface FrameworkConfig {
+  name: string;
+  draftsDir: string;
+  postsDir: string;
+  useDateInFilename: boolean;
+  frontmatterStyle: 'yaml' | 'toml';
+  draftField: string | null; // null means use drafts folder instead
+}
+
+const FRAMEWORK_CONFIGS: Record<Framework, FrameworkConfig> = {
+  hugo: {
+    name: 'Hugo',
+    draftsDir: 'content/posts',
+    postsDir: 'content/posts',
+    useDateInFilename: false,
+    frontmatterStyle: 'yaml',
+    draftField: 'draft',
+  },
+  jekyll: {
+    name: 'Jekyll',
+    draftsDir: '_drafts',
+    postsDir: '_posts',
+    useDateInFilename: true,
+    frontmatterStyle: 'yaml',
+    draftField: null, // Jekyll uses _drafts folder
+  },
+  astro: {
+    name: 'Astro',
+    draftsDir: 'src/content/blog',
+    postsDir: 'src/content/blog',
+    useDateInFilename: false,
+    frontmatterStyle: 'yaml',
+    draftField: 'draft',
+  },
+  nextjs: {
+    name: 'Next.js',
+    draftsDir: 'content/posts',
+    postsDir: 'content/posts',
+    useDateInFilename: false,
+    frontmatterStyle: 'yaml',
+    draftField: 'draft',
+  },
+  gatsby: {
+    name: 'Gatsby',
+    draftsDir: 'content/blog',
+    postsDir: 'content/blog',
+    useDateInFilename: false,
+    frontmatterStyle: 'yaml',
+    draftField: 'draft',
+  },
+  eleventy: {
+    name: 'Eleventy',
+    draftsDir: 'src/posts',
+    postsDir: 'src/posts',
+    useDateInFilename: false,
+    frontmatterStyle: 'yaml',
+    draftField: 'draft',
+  },
+  unknown: {
+    name: 'Unknown',
+    draftsDir: 'drafts',
+    postsDir: 'posts',
+    useDateInFilename: false,
+    frontmatterStyle: 'yaml',
+    draftField: 'draft',
+  },
+};
+
+function detectFramework(cwd: string): Framework {
+  // Check for config files that identify the framework
+
+  // Hugo: hugo.toml, hugo.yaml, hugo.json, or config.toml with hugo markers
+  if (
+    existsSync(join(cwd, 'hugo.toml')) ||
+    existsSync(join(cwd, 'hugo.yaml')) ||
+    existsSync(join(cwd, 'hugo.json')) ||
+    existsSync(join(cwd, 'config.toml'))
+  ) {
+    // Verify it's Hugo by checking for config.toml content or archetypes
+    if (existsSync(join(cwd, 'archetypes'))) return 'hugo';
+    if (existsSync(join(cwd, 'config.toml'))) {
+      const content = readFileSync(join(cwd, 'config.toml'), 'utf8');
+      if (content.includes('baseURL') || content.includes('theme')) return 'hugo';
+    }
+    if (existsSync(join(cwd, 'hugo.toml')) || existsSync(join(cwd, 'hugo.yaml'))) return 'hugo';
+  }
+
+  // Jekyll: _config.yml
+  if (existsSync(join(cwd, '_config.yml')) || existsSync(join(cwd, '_config.yaml'))) {
+    return 'jekyll';
+  }
+
+  // Astro: astro.config.mjs or astro.config.ts
+  if (
+    existsSync(join(cwd, 'astro.config.mjs')) ||
+    existsSync(join(cwd, 'astro.config.ts')) ||
+    existsSync(join(cwd, 'astro.config.js'))
+  ) {
+    return 'astro';
+  }
+
+  // Check package.json for framework dependencies
+  const packageJsonPath = join(cwd, 'package.json');
+  if (existsSync(packageJsonPath)) {
+    try {
+      const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+
+      if (deps['astro']) return 'astro';
+      if (deps['gatsby']) return 'gatsby';
+      if (deps['@11ty/eleventy'] || deps['eleventy']) return 'eleventy';
+      if (deps['next']) return 'nextjs';
+    } catch {
+      // Ignore parse errors
+    }
+  }
+
+  // Eleventy: .eleventy.js or eleventy.config.js
+  if (
+    existsSync(join(cwd, '.eleventy.js')) ||
+    existsSync(join(cwd, 'eleventy.config.js')) ||
+    existsSync(join(cwd, 'eleventy.config.cjs'))
+  ) {
+    return 'eleventy';
+  }
+
+  return 'unknown';
+}
+
+function findExistingContentDir(cwd: string, framework: Framework): string | null {
+  const config = FRAMEWORK_CONFIGS[framework];
+
+  // Check if the expected drafts/posts dir exists
+  if (existsSync(join(cwd, config.draftsDir))) return config.draftsDir;
+  if (existsSync(join(cwd, config.postsDir))) return config.postsDir;
+
+  // Check common alternatives
+  const alternatives = [
+    'content/posts',
+    'content/blog',
+    'src/content/blog',
+    'src/content/posts',
+    'src/posts',
+    'src/blog',
+    'posts',
+    'blog',
+    '_posts',
+    '_drafts',
+  ];
+
+  for (const dir of alternatives) {
+    if (existsSync(join(cwd, dir))) return dir;
+  }
+
+  return null;
+}
+
 function loadState(cwd: string): BlogState {
   const stateFile = join(cwd, STATE_FILE);
   if (!existsSync(stateFile)) {
@@ -175,7 +334,37 @@ TITLE: [Your title here]
 [Blog content in markdown]`;
 }
 
-function generateFrontmatter(title: string, tweet: Tweet): string {
+function generateFrontmatter(title: string, tweet: Tweet, frameworkConfig: FrameworkConfig): string {
+  const date = new Date().toISOString().split('T')[0];
+
+  const fields: Record<string, string | boolean> = {
+    title: title.replace(/"/g, '\\"'),
+    date: date,
+    source_tweet: `https://x.com/${tweet.authorUsername}/status/${tweet.id}`,
+  };
+
+  // Add draft field if the framework uses it (vs drafts folder)
+  if (frameworkConfig.draftField) {
+    fields[frameworkConfig.draftField] = true;
+  }
+
+  if (frameworkConfig.frontmatterStyle === 'toml') {
+    const lines = Object.entries(fields).map(([key, value]) => {
+      if (typeof value === 'boolean') return `${key} = ${value}`;
+      return `${key} = "${value}"`;
+    });
+    return `+++\n${lines.join('\n')}\n+++\n\n`;
+  }
+
+  // YAML (default)
+  const lines = Object.entries(fields).map(([key, value]) => {
+    if (typeof value === 'boolean') return `${key}: ${value}`;
+    return `${key}: "${value}"`;
+  });
+  return `---\n${lines.join('\n')}\n---\n\n`;
+}
+
+function generateFilename(title: string, frameworkConfig: FrameworkConfig): string {
   const date = new Date().toISOString().split('T')[0];
   const slug = title
     .toLowerCase()
@@ -183,14 +372,10 @@ function generateFrontmatter(title: string, tweet: Tweet): string {
     .replace(/^-|-$/g, '')
     .slice(0, 50);
 
-  return `---
-title: "${title.replace(/"/g, '\\"')}"
-date: ${date}
-draft: true
-source_tweet: https://x.com/${tweet.authorUsername}/status/${tweet.id}
----
-
-`;
+  if (frameworkConfig.useDateInFilename) {
+    return `${date}-${slug}.md`;
+  }
+  return `${slug}.md`;
 }
 
 function parseBlogResponse(response: string): { title: string; content: string } {
@@ -250,12 +435,27 @@ export async function blogCommand(options: BlogFromXOptions): Promise<void> {
       process.exit(1);
     }
 
-    // Setup output directory
-    const outputDir = options.output || 'content/drafts';
+    // Detect framework and setup output directory
+    const framework = detectFramework(cwd);
+    const frameworkConfig = FRAMEWORK_CONFIGS[framework];
+
+    let outputDir: string;
+    if (options.output) {
+      outputDir = options.output;
+    } else {
+      // Try to find existing content directory, or use framework default
+      const existingDir = findExistingContentDir(cwd, framework);
+      outputDir = existingDir || frameworkConfig.draftsDir;
+    }
+
     if (!existsSync(outputDir)) {
       mkdirSync(outputDir, { recursive: true });
-      logger.info(`Created output directory: ${outputDir}`);
     }
+
+    if (framework !== 'unknown') {
+      logger.success(`Detected ${frameworkConfig.name} project`);
+    }
+    logger.info(`Output directory: ${outputDir}`)
 
     // Initialize LLM
     const llm = createLLMService(config);
@@ -362,17 +562,12 @@ export async function blogCommand(options: BlogFromXOptions): Promise<void> {
       const response = await llm.generate(prompt);
       const { title, content } = parseBlogResponse(response);
 
-      // Create filename from title
-      const slug = title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')
-        .slice(0, 50);
-      const filename = `${slug}.md`;
+      // Create filename and path using framework conventions
+      const filename = generateFilename(title, frameworkConfig);
       const filepath = join(outputDir, filename);
 
       // Write file with frontmatter
-      const frontmatter = generateFrontmatter(title, tweet);
+      const frontmatter = generateFrontmatter(title, tweet, frameworkConfig);
       writeFileSync(filepath, frontmatter + content);
 
       used++;
