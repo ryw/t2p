@@ -68,6 +68,7 @@ export interface Tweet {
   likeCount?: number;
   replyCount?: number;
   retweetCount?: number;
+  isReply?: boolean;
 }
 
 export class XApiService {
@@ -303,6 +304,64 @@ export class XApiService {
     } catch {
       // Return empty set on error - don't block the main flow
       return repliedToIds;
+    }
+  }
+
+  /**
+   * Fetch user's tweets AND replies with engagement metrics
+   * Sorted by total engagement (likes + replies + retweets)
+   */
+  async getMyTweetsWithEngagement(maxResults: number = 100): Promise<Tweet[]> {
+    const tweets: Tweet[] = [];
+    const limit = Math.min(maxResults, 100);
+
+    try {
+      const me = await this.getMe();
+
+      // Fetch user's tweets INCLUDING replies (don't exclude replies)
+      const timeline = await this.client.v2.userTimeline(me.id, {
+        max_results: limit,
+        'tweet.fields': ['created_at', 'text', 'public_metrics', 'note_tweet', 'referenced_tweets'],
+        exclude: ['retweets'], // Only exclude retweets, keep replies
+      });
+
+      for await (const tweet of timeline) {
+        const tweetWithMetrics = tweet as TweetV2WithMetrics;
+        const metrics = tweetWithMetrics.public_metrics;
+        const noteTweet = tweetWithMetrics.note_tweet;
+        const fullText = noteTweet?.text || tweet.text;
+
+        // Determine if this is a reply
+        const isReply = tweetWithMetrics.referenced_tweets?.some(
+          (ref) => ref.type === 'replied_to'
+        );
+
+        tweets.push({
+          id: tweet.id,
+          text: fullText,
+          createdAt: tweet.created_at || new Date().toISOString(),
+          authorId: me.id,
+          authorUsername: me.username,
+          authorName: me.name,
+          likeCount: metrics?.like_count,
+          replyCount: metrics?.reply_count,
+          retweetCount: metrics?.retweet_count,
+          isReply,
+        });
+
+        if (tweets.length >= maxResults) {
+          break;
+        }
+      }
+
+      // Sort by total engagement (likes + replies + retweets) descending
+      return tweets.sort((a, b) => {
+        const engagementA = (a.likeCount || 0) + (a.replyCount || 0) + (a.retweetCount || 0);
+        const engagementB = (b.likeCount || 0) + (b.replyCount || 0) + (b.retweetCount || 0);
+        return engagementB - engagementA;
+      });
+    } catch (error) {
+      handleApiError(error as TwitterApiError, 'Failed to fetch tweets with engagement');
     }
   }
 
