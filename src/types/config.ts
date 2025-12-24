@@ -33,6 +33,9 @@ export interface T2pConfig {
   typefully?: {
     socialSetId?: string;
   };
+  blog?: {
+    outputDir?: string;
+  };
 }
 
 export const DEFAULT_CONFIG: T2pConfig = {

@@ -1,6 +1,6 @@
 import { createInterface } from 'readline';
-import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
-import { join, basename } from 'path';
+import { writeFileSync, readFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
+import { join, basename, extname } from 'path';
 import { XAuthService } from '../services/x-auth.js';
 import { XApiService, Tweet } from '../services/x-api.js';
 import { createLLMService } from '../services/llm-factory.js';
@@ -184,6 +184,48 @@ function findExistingContentDir(cwd: string, framework: Framework): string | nul
   return null;
 }
 
+function detectUsesMdx(cwd: string, contentDir: string): boolean {
+  // Check package.json for MDX dependencies
+  const packageJsonPath = join(cwd, 'package.json');
+  if (existsSync(packageJsonPath)) {
+    try {
+      const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+
+      // Common MDX packages
+      if (
+        deps['@mdx-js/mdx'] ||
+        deps['@mdx-js/react'] ||
+        deps['@next/mdx'] ||
+        deps['next-mdx-remote'] ||
+        deps['@astrojs/mdx'] ||
+        deps['gatsby-plugin-mdx']
+      ) {
+        return true;
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }
+
+  // Check for existing .mdx files in content directory
+  const fullContentDir = join(cwd, contentDir);
+  if (existsSync(fullContentDir)) {
+    try {
+      const files = readdirSync(fullContentDir, { recursive: true });
+      for (const file of files) {
+        if (typeof file === 'string' && file.endsWith('.mdx')) {
+          return true;
+        }
+      }
+    } catch {
+      // Ignore read errors
+    }
+  }
+
+  return false;
+}
+
 function loadState(cwd: string): BlogState {
   const stateFile = join(cwd, STATE_FILE);
   if (!existsSync(stateFile)) {
@@ -364,8 +406,9 @@ function generateFrontmatter(title: string, tweet: Tweet, frameworkConfig: Frame
   return `---\n${lines.join('\n')}\n---\n\n`;
 }
 
-function generateFilename(title: string, frameworkConfig: FrameworkConfig): string {
+function generateFilename(title: string, frameworkConfig: FrameworkConfig, useMdx: boolean): string {
   const date = new Date().toISOString().split('T')[0];
+  const ext = useMdx ? 'mdx' : 'md';
   const slug = title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -373,9 +416,9 @@ function generateFilename(title: string, frameworkConfig: FrameworkConfig): stri
     .slice(0, 50);
 
   if (frameworkConfig.useDateInFilename) {
-    return `${date}-${slug}.md`;
+    return `${date}-${slug}.${ext}`;
   }
-  return `${slug}.md`;
+  return `${slug}.${ext}`;
 }
 
 function parseBlogResponse(response: string): { title: string; content: string } {
@@ -436,12 +479,15 @@ export async function blogCommand(options: BlogFromXOptions): Promise<void> {
     }
 
     // Detect framework and setup output directory
+    // Priority: CLI --output > config blog.outputDir > auto-detect > framework default
     const framework = detectFramework(cwd);
     const frameworkConfig = FRAMEWORK_CONFIGS[framework];
 
     let outputDir: string;
     if (options.output) {
       outputDir = options.output;
+    } else if (config.blog?.outputDir) {
+      outputDir = config.blog.outputDir;
     } else {
       // Try to find existing content directory, or use framework default
       const existingDir = findExistingContentDir(cwd, framework);
@@ -452,10 +498,13 @@ export async function blogCommand(options: BlogFromXOptions): Promise<void> {
       mkdirSync(outputDir, { recursive: true });
     }
 
+    // Detect if site uses MDX
+    const useMdx = detectUsesMdx(cwd, outputDir);
+
     if (framework !== 'unknown') {
       logger.success(`Detected ${frameworkConfig.name} project`);
     }
-    logger.info(`Output directory: ${outputDir}`)
+    logger.info(`Output: ${outputDir}/*.${useMdx ? 'mdx' : 'md'}`)
 
     // Initialize LLM
     const llm = createLLMService(config);
@@ -563,7 +612,7 @@ export async function blogCommand(options: BlogFromXOptions): Promise<void> {
       const { title, content } = parseBlogResponse(response);
 
       // Create filename and path using framework conventions
-      const filename = generateFilename(title, frameworkConfig);
+      const filename = generateFilename(title, frameworkConfig, useMdx);
       const filepath = join(outputDir, filename);
 
       // Write file with frontmatter
