@@ -440,6 +440,65 @@ export class XApiService {
   }
 
   /**
+   * Fetch replies to a tweet from other users (not the original author)
+   * Returns top replies sorted by engagement
+   */
+  async getRepliesFromOthers(tweetId: string, maxResults: number = 20): Promise<Tweet[]> {
+    try {
+      const me = await this.getMe();
+
+      // Search for replies to this tweet, excluding the author's own replies
+      const searchResult = await this.client.v2.search(
+        `conversation_id:${tweetId} -from:${me.id}`,
+        {
+          'tweet.fields': ['created_at', 'text', 'public_metrics', 'author_id'],
+          'user.fields': ['username', 'name'],
+          expansions: ['author_id'],
+          max_results: Math.min(maxResults, 100),
+        }
+      );
+
+      // Build author lookup map
+      const authorMap = new Map<string, { username: string; name: string }>();
+      if (searchResult.includes?.users) {
+        for (const user of searchResult.includes.users) {
+          authorMap.set(user.id, { username: user.username, name: user.name });
+        }
+      }
+
+      const tweets: Tweet[] = [];
+
+      for await (const tweet of searchResult) {
+        const tweetWithMetrics = tweet as TweetV2WithMetrics;
+        const metrics = tweetWithMetrics.public_metrics;
+        const author = tweet.author_id ? authorMap.get(tweet.author_id) : undefined;
+
+        tweets.push({
+          id: tweet.id,
+          text: tweet.text,
+          createdAt: tweet.created_at || new Date().toISOString(),
+          authorId: tweet.author_id,
+          authorUsername: author?.username,
+          authorName: author?.name,
+          likeCount: metrics?.like_count,
+          replyCount: metrics?.reply_count,
+          retweetCount: metrics?.retweet_count,
+        });
+      }
+
+      // Sort by engagement (likes + replies + retweets) descending
+      return tweets.sort((a, b) => {
+        const engagementA = (a.likeCount || 0) + (a.replyCount || 0) + (a.retweetCount || 0);
+        const engagementB = (b.likeCount || 0) + (b.replyCount || 0) + (b.retweetCount || 0);
+        return engagementB - engagementA;
+      });
+    } catch {
+      // Return empty array on error
+      return [];
+    }
+  }
+
+  /**
    * Get rate limit status for key endpoints
    */
   async getRateLimitStatus(): Promise<{

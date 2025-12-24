@@ -396,28 +396,20 @@ function generateXEmbed(tweet: Tweet): string {
   return `<blockquote class="twitter-tweet"><a href="https://x.com/${tweet.authorUsername}/status/${tweet.id}"></a></blockquote>`;
 }
 
-function insertEmbeds(content: string, threadTweets: Tweet[]): string {
-  // Select 3-5 tweets for embedding, always including the first (original)
-  const embedCount = Math.min(Math.max(3, Math.ceil(threadTweets.length / 2)), 5);
-  const step = Math.max(1, Math.floor(threadTweets.length / embedCount));
+function insertEmbeds(content: string, originalTweet: Tweet, repliesFromOthers: Tweet[]): string {
+  // Select embeds: 1 from user (the original) + 2-4 from other users
+  const otherEmbedCount = Math.min(Math.max(2, repliesFromOthers.length), 4);
+  const selectedReplies = repliesFromOthers.slice(0, otherEmbedCount);
 
-  const selectedTweets: Tweet[] = [];
-  for (let i = 0; i < threadTweets.length && selectedTweets.length < embedCount; i += step) {
-    selectedTweets.push(threadTweets[i]);
-  }
-
-  // Always include first tweet if not already
-  if (selectedTweets.length > 0 && selectedTweets[0].id !== threadTweets[0].id) {
-    selectedTweets.unshift(threadTweets[0]);
-    if (selectedTweets.length > 5) selectedTweets.pop();
-  }
+  // All tweets to embed: original first, then top replies from others
+  const allEmbeds = [originalTweet, ...selectedReplies];
 
   // Replace placeholders with embeds
   let result = content;
   let embedIndex = 0;
 
-  while (result.includes('{{EMBED_PLACEHOLDER}}') && embedIndex < selectedTweets.length) {
-    result = result.replace('{{EMBED_PLACEHOLDER}}', generateXEmbed(selectedTweets[embedIndex]));
+  while (result.includes('{{EMBED_PLACEHOLDER}}') && embedIndex < allEmbeds.length) {
+    result = result.replace('{{EMBED_PLACEHOLDER}}', generateXEmbed(allEmbeds[embedIndex]));
     embedIndex++;
   }
 
@@ -673,6 +665,13 @@ export async function blogCommand(options: BlogFromXOptions): Promise<void> {
         logger.info(style.dim(`Found ${threadTweets.length} tweets in thread`));
       }
 
+      // Fetch replies from other users for embedding
+      logger.info(style.cyan('Fetching replies from others...'));
+      const repliesFromOthers = await apiService.getRepliesFromOthers(tweet.id, 20);
+      if (repliesFromOthers.length > 0) {
+        logger.info(style.dim(`Found ${repliesFromOthers.length} replies from others`));
+      }
+
       // Generate blog post
       logger.info(style.cyan('Generating blog post...'));
 
@@ -680,8 +679,8 @@ export async function blogCommand(options: BlogFromXOptions): Promise<void> {
       const response = await llm.generate(prompt);
       const { title, content } = parseBlogResponse(response);
 
-      // Insert X embeds into content
-      const contentWithEmbeds = insertEmbeds(content, threadTweets);
+      // Insert X embeds: 1 from user + 2-4 from others
+      const contentWithEmbeds = insertEmbeds(content, threadTweets[0], repliesFromOthers);
 
       // Create filename and path using framework conventions
       const filename = generateFilename(title, frameworkConfig, useMdx);
