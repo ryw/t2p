@@ -229,7 +229,7 @@ function loadConfig(cwd: string): T2pConfig | null {
   return null;
 }
 
-export async function blogFromXCommand(options: BlogFromXOptions): Promise<void> {
+export async function blogCommand(options: BlogFromXOptions): Promise<void> {
   const cwd = process.cwd();
   const { style } = logger;
 

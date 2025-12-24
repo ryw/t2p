@@ -18,7 +18,7 @@ import { xStatusCommand } from './commands/x-status.js';
 import { statsCommand } from './commands/stats.js';
 import { syncPromptsCommand } from './commands/sync-prompts.js';
 import { lastInputCommand } from './commands/last-input.js';
-import { blogFromXCommand } from './commands/blog-from-x.js';
+import { blogCommand } from './commands/blog.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -104,10 +104,10 @@ program
   .action(lastInputCommand);
 
 program
-  .command('blog-from-x')
+  .command('blog')
   .description('Generate blog post drafts from your successful X posts')
   .option('--count <n>', 'Number of posts to fetch (max 100)', parseInt, 50)
   .option('--output <dir>', 'Output directory for drafts', 'content/drafts')
-  .action(blogFromXCommand);
+  .action(blogCommand);
 
 program.parse();
