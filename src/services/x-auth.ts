@@ -6,7 +6,9 @@ import { join } from 'path';
 import type { XTokens, XTokensStore } from '../types/x-tokens.js';
 import { logger } from '../utils/logger.js';
 
-const REDIRECT_URI = 'http://127.0.0.1:3000/callback';
+// Port 9876 to avoid conflicts with common dev servers (3000, 8080, etc.)
+const CALLBACK_PORT = 9876;
+const REDIRECT_URI = `http://127.0.0.1:${CALLBACK_PORT}/callback`;
 const SCOPES = ['tweet.read', 'tweet.write', 'users.read', 'like.write', 'offline.access'];
 
 export class XAuthService {
@@ -53,7 +55,7 @@ export class XAuthService {
           'X API authentication failed (401). This usually means:\n' +
           '  1. The Client ID is invalid or the app was deleted\n' +
           '  2. The app\'s OAuth 2.0 settings are misconfigured\n' +
-          '  3. The redirect URI doesn\'t match: http://127.0.0.1:3000/callback\n' +
+          `  3. The redirect URI doesn't match: ${REDIRECT_URI}\n` +
           'Please check your app at https://developer.x.com/en/portal/dashboard'
         );
       }
@@ -139,7 +141,7 @@ export class XAuthService {
         }
       });
 
-      server.listen(3000, () => {
+      server.listen(CALLBACK_PORT, () => {
         logger.step('Opening browser for authentication...');
         open(authUrl);
       });
