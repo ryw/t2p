@@ -11,6 +11,7 @@ import { logger } from '../utils/logger.js';
 import { isShippostProject } from '../utils/validation.js';
 import { NotInitializedError } from '../utils/errors.js';
 import { readlineSync } from '../utils/readline.js';
+import { formatCount, formatFollowerCount, formatTimeAgo } from '../utils/format.js';
 
 const SKIP_CACHE_FILE = '.shippost-skipped-tweets.json';
 const SKIP_CACHE_MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours
@@ -63,35 +64,6 @@ interface ParsedReplyItem {
   tweetNumber: number;
   suggestedReply?: string;
   reasoning?: string;
-}
-
-function formatFollowerCount(count?: number): string {
-  if (!count) return '';
-  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
-  if (count >= 1_000) return `${(count / 1_000).toFixed(1)}K`;
-  return `${count}`;
-}
-
-function formatCount(count?: number): string {
-  if (count === undefined || count === null) return '0';
-  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
-  if (count >= 1_000) return `${(count / 1_000).toFixed(1)}K`;
-  return `${count}`;
-}
-
-function formatTimeAgo(dateStr: string): string {
-  const now = new Date();
-  const date = new Date(dateStr);
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffMins < 1) return 'just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays === 1) return '1d ago';
-  return `${diffDays}d ago`;
 }
 
 function displayTweetForReply(opportunity: ReplyOpportunity, index: number, total: number): void {

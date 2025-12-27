@@ -6,6 +6,7 @@ import { XApiService, Tweet } from '../services/x-api.js';
 import { createLLMService } from '../services/llm-factory.js';
 import { logger } from '../utils/logger.js';
 import { readlineSync } from '../utils/readline.js';
+import { formatCount, formatTimeAgo } from '../utils/format.js';
 import { T2pConfig } from '../types/config.js';
 
 const STATE_FILE = '.ship-blog-state.json';
@@ -261,28 +262,6 @@ function markSkipped(cwd: string, tweetId: string): void {
   const state = loadState(cwd);
   state.skippedTweets[tweetId] = Date.now();
   saveState(cwd, state);
-}
-
-function formatCount(count?: number): string {
-  if (count === undefined || count === null) return '0';
-  if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M`;
-  if (count >= 1_000) return `${(count / 1_000).toFixed(1)}K`;
-  return `${count}`;
-}
-
-function formatTimeAgo(dateStr: string): string {
-  const now = new Date();
-  const date = new Date(dateStr);
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffMins < 1) return 'just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays === 1) return '1d ago';
-  return `${diffDays}d ago`;
 }
 
 function getTotalEngagement(tweet: Tweet): number {

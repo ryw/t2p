@@ -4,6 +4,7 @@ import { isShippostProject } from '../utils/validation.js';
 import { NotInitializedError } from '../utils/errors.js';
 import { createLLMService } from '../services/llm-factory.js';
 import { buildBangerEvalPrompt, parseBangerEval } from '../utils/banger-eval.js';
+import { formatTimestamp } from '../utils/format.js';
 import type { Post } from '../types/post.js';
 
 interface PostsOptions {
@@ -12,22 +13,6 @@ interface PostsOptions {
   minScore?: number;
   source?: string;
   eval?: boolean;
-}
-
-function formatTimestamp(timestamp: string): string {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return 'just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-
-  return date.toLocaleDateString();
 }
 
 function displayPost(post: Post, index: number, total: number): void {
